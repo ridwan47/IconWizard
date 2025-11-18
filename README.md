@@ -59,21 +59,20 @@ No spellbook required. No eye of newt. Just pure Windows batch magic! 🧪✨
 - [ResourceHacker](http://www.angusj.com/resourcehacker/) - For extracting magical essences from EXE scrolls
 - [IconsExtract](https://www.nirsoft.net/utils/iconsext.html) - Alternative extraction familiar
 
-> 💡 **Wizard's Tip:** Place companion familiars in the `resources` folder for portable spellcasting!
 
 ### 📦 Initiation Ritual
 
 #### Path 1: Wandering Wizard (Portable)
 ```batch
-1. Download the spellbook (IconWizard.bat)
+1. Download the spellbook (IconWizard.exe)
 2. Double-click to begin your journey
 3. Start casting immediately! 🪄
 ```
 
 #### Path 2: Tower Installation (Permanent Residence)
 ```batch
-1. Right-click IconWizard.bat
-2. Select "Run as administrator"
+1. Right-click IconWizard.exe
+2. Double-click to Open
 3. Choose [I] - Inscribe Spells into Context Menu
 4. Enjoy right-click magic everywhere! ✨
 ```
@@ -110,7 +109,7 @@ No spellbook required. No eye of newt. Just pure Windows batch magic! 🧪✨
 ### Main Spellbook
 ```
  ========================================================================
-                          IconWizard v4.7.6
+                          IconWizard by ridwan47
  ========================================================================
 
  TIP: Drag a folder onto the wizard for quick spellcasting
@@ -132,7 +131,7 @@ No spellbook required. No eye of newt. Just pure Windows batch magic! 🧪✨
 
 ## 🎪 Magical Use Cases
 
-### 🎮 Game Library Enchantment
+### 🎮 Game /Software Library Enchantment
 Give each game folder its own icon extracted from the game's essence!
 ```batch
 1. Right-click game folder
@@ -161,15 +160,6 @@ Transform boring work folders into works of art:
 
 ---
 
-## 🔧 Wizard's Configuration Scroll
-
-### Spell Mode Setting
-```batch
-REM In the ancient script header:
-set "ExeMode=0"  ; Wandering wizard mode (default)
-set "ExeMode=1"  ; Tower installation mode
-```
-
 ### Exclusion Runes
 ```batch
 REM Ignore these cursed patterns when divining:
@@ -184,25 +174,6 @@ set "resourcesPath=%~dp0resources\"
 
 ---
 
-## 🐛 When Spells Backfire
-
-### "ImageMagick Not Found"
-**Counter-Spell:** Summon ImageMagick and place `magick.exe` in your `resources` sanctum.
-
-### "Could not extract icon from EXE"
-**Counter-Spell:** The scroll may lack an icon, or it's protected by ancient wards. Try all 4 extraction rituals!
-
-### "Access Denied"
-**Counter-Spell:** Channel administrator powers. Right-click → "Run as administrator"
-
-### Context Menu Vanished
-**Counter-Spell:** Re-inscribe the spells with administrator privileges.
-
-### Icons Won't Manifest
-**Counter-Spell:** Ensure FolderIconUpdater.exe familiar is in the `resources` folder for instant manifestation!
-
----
-
 ## 📋 Wizard's Journal (Debug Mode)
 
 Having mystical mishaps? Consult the ancient logs:
@@ -211,19 +182,6 @@ Location: %TEMP%\_folder_icon_debug.log
 ```
 
 Every incantation is recorded with temporal markings. Perfect for understanding what magic occurred (or misfired)!
-
----
-
-## 🤝 Join the Wizard's Council
-
-Found a bug? Want to add new spells? Apprentices welcome!
-
-**Quest Ideas for Aspiring Wizards:**
-- 🌙 Conjure a dark mode interface
-- 🌍 Multi-language incantations
-- 🎨 More enchantment style presets
-- 📦 Standalone crystal ball (EXE wrapper)
-- 🎯 Scrying glass for icon preview
 
 ---
 
@@ -238,8 +196,7 @@ MIT License - Go wild, but don't blame me if your cat suddenly has a different i
 **Grand Wizard:** ridwan47
 
 **Crafted with:**
-- ☕ Elixir of Wakefulness (coffee)
-- 🎵 Enchanting melodies (lo-fi beats)
+-  Google Gemini 2.5 Pro
 - 🪄 Batch script sorcery
 - 💪 Unwavering determination
 
@@ -247,7 +204,6 @@ MIT License - Go wild, but don't blame me if your cat suddenly has a different i
 - ImageMagick Archmages
 - NirSoft Guild (IconsExtract)
 - Angus Johnson (ResourceHacker)
-- All who said "you can't do that in batch script" (watch us!)
 
 ---
 
@@ -255,8 +211,8 @@ MIT License - Go wild, but don't blame me if your cat suddenly has a different i
 
 Having issues? Questions? Want to share your legendary icon collections?
 
-- 🐛 [Report a Curse](https://github.com/yourusername/iconwizard/issues)
-- 💬 [Wizard's Council](https://github.com/yourusername/iconwizard/discussions)
+- 🐛 [Report a Curse](https://github.com/ridwan47/iconwizard/issues)
+- 💬 [Wizard's Council](https://github.com/ridwan47/iconwizard/discussions)
 - ⭐ Leave a star if the magic worked for you!
 
 ---
