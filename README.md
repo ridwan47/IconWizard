@@ -66,7 +66,7 @@ No spellbook required. No eye of newt. Just pure Windows batch magic! 🧪✨
 ```batch
 1. Download the spellbook (IconWizard.exe)
 2. Double-click to begin your journey
-3. Start casting immediately! 🪄
+3. Start casting immediately! ✨
 ```
 
 #### Path 2: Tower Installation (Permanent Residence)
@@ -204,6 +204,7 @@ MIT License - Go wild, but don't blame me if your cat suddenly has a different i
 - ImageMagick Archmages
 - NirSoft Guild (IconsExtract)
 - Angus Johnson (ResourceHacker)
+- ramdany7 for FolderIconUpdater
 
 ---
 
