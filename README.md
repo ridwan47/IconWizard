@@ -6,7 +6,7 @@
 
 ---
 
-## 🪄 What Sorcery Is This?
+## 🔮 What Sorcery Is This?
 
 Ever looked at a folder and thought, "You know what? This folder needs a cooler icon"? Or maybe you found the perfect PNG but need it as an ICO file? Or perhaps you want to extract icons from EXE files like a digital archaeologist?
 
@@ -23,7 +23,7 @@ No spellbook required. No eye of newt. Just pure Windows batch magic! 🧪✨
 
 ## ✨ Spells in the Grimoire
 
-### 🪄 Folder Enchantment Spells
+### 🎨 Folder Enchantment Spells
 - 🖱️ **Drag & Drop Magic** - Just drop a folder on the wizard
 - 🔍 **Automatic Divination** - Finds the best icons inside folders
 - 🎯 **Context Menu Conjuring** - Right-click any folder → Cast spell
@@ -79,9 +79,9 @@ No spellbook required. No eye of newt. Just pure Windows batch magic! 🧪✨
 
 ---
 
-## 🪄 Casting Your First Spell
+## ⚡ Casting Your First Spell
 
-### ⚡ Method 1: The Quick Cast (Recommended)
+### 💫 Method 1: The Quick Cast (Recommended)
 ```
 1. Drag a folder onto the wizard's staff (the .bat file)
 2. Choose your enchantment
@@ -196,7 +196,7 @@ MIT License - Go wild, but don't blame me if your cat suddenly has a different i
 **Grand Wizard:** ridwan47
 
 **Crafted with:**
--  Google Gemini 2.5 Pro
+- ✨Google Gemini 2.5 Pro
 - 🪄 Batch script sorcery
 - 💪 Unwavering determination
 
