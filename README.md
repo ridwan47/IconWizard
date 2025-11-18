@@ -2,8 +2,7 @@
 
 <img width="256" height="256" alt="icon_icon4" src="https://github.com/user-attachments/assets/3d57a055-2f03-4be5-8608-bc5c3687c4f5" />
 
-
-> ✨*Abracadabra! Your folders just got fabulous* ✨
+✨*Abracadabra! Your folders just got fabulous* ✨
 
 ---
 
