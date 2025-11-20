@@ -2,236 +2,270 @@
 
 <img width="256" height="256" alt="icon_icon4" src="https://github.com/user-attachments/assets/3d57a055-2f03-4be5-8608-bc5c3687c4f5" />
 
-✨*Abracadabra! Your folders just got fabulous* ✨
+✨ *Abracadabra! Your folders just got fabulous* ✨
 
 ---
 
-## 🔮 What Sorcery Is This?
+## 🔮 What Is This?
 
-Ever looked at a folder and thought, "You know what? This folder needs a cooler icon"? Or maybe you found the perfect PNG but need it as an ICO file? Or perhaps you want to extract icons from EXE files like a digital archaeologist?
+Ever looked at a folder and thought, "This needs a better icon"? Or found the perfect PNG but need it as an ICO file? Maybe you want to extract icons from EXE files?
 
-**IconWizard does all that with a flick of the wand.** 
+**IconWizard does all that and more.** 
 
-No spellbook required. No eye of newt. Just pure Windows batch magic! 🧪✨
+No complicated setup. No command-line wizardry. Just drag, drop, and watch the magic happen! ✨
 
-### 🎯 Two Spells, One Wizard
+### 🎯 Two Tools in One
 
-1. **🖼️ Folder Icon Enchantment** - Give your folders personality
-2. **🔄 Image Transmutation** - Transform images with arcane powers
-
----
-
-## ✨ Spells in the Grimoire
-
-### 🎨 Folder Enchantment Spells
-- 🖱️ **Drag & Drop Magic** - Just drop a folder on the wizard
-- 🔍 **Automatic Divination** - Finds the best icons inside folders
-- 🎯 **Context Menu Conjuring** - Right-click any folder → Cast spell
-- 🔄 **Mass Enchantment** - Process entire directory trees
-- 📂 **Multiple Incantations** - Browse, paste, or drag-n-drop
-
-### 🔮 Image Transmutation Spells
-- 🎨 **ICO Conjuring** - Standard or with rounded corners (mystical!)
-- 🖼️ **ICO Extraction** - Pull the essence from icons
-- 💎 **EXE Soul Extraction** - Extract icons from executables
-- 🌈 **Format Shapeshifting** - PNG, JPG, WebP, BMP, GIF, SVG, ICO
-- 📦 **Batch Transmutation** - Transform entire folders at once
-
-### 🧪 Arcane Abilities
-- ⚡ **Instant Manifestation** - No Explorer restart needed
-- 🛡️ **Protection Charms** - Preserves attributes, avoids conflicts
-- 🔍 **Deep Scrying** - Uses 4 different extraction rituals
-- 📝 **Wizard's Journal** - Detailed spell logging
-- 🎯 **Conflict Resolution Runes** - Auto-renames to prevent chaos
+1. **🖼️ Folder Icon Changer** - Customize any folder with beautiful icons
+2. **🔄 Image Converter** - Convert images between formats with ease
 
 ---
 
-## 🚀 Becoming a Wizard
+## ✨ Features
 
-### Apprentice Requirements
+### 🎨 Folder Icon Features
+- 🖱️ **Drag & Drop** - Just drop a folder on the app
+- 🔍 **Smart Scanning** - Automatically finds icons inside folders
+- 🎯 **Right-Click Menu** - Access from anywhere
+- 🔄 **Batch Processing** - Handle multiple folders at once
+- 📂 **Flexible Input** - Browse, paste paths, or drag-n-drop
 
-**Required:**
-- Windows 7 or later (The wizard's realm)
-- Administrator rights (for powerful spells)
+### 🔮 Image Conversion Features
+- 🎨 **Convert to ICO** - Standard or with rounded corners
+- 🖼️ **Extract from ICO** - Get PNG images from icon files
+- 💎 **Extract from EXE** - Pull icons from programs
+- 🌈 **Multiple Formats** - PNG, JPG, WebP, BMP, GIF, SVG, ICO
+- 📦 **Batch Convert** - Process entire folders
 
-**Optional Familiar Companions** (for full magical powers):
-- [ImageMagick](https://imagemagick.org/script/download.php#windows) - The grand grimoire of image transmutation
-- [ResourceHacker](http://www.angusj.com/resourcehacker/) - For extracting magical essences from EXE scrolls
-- [IconsExtract](https://www.nirsoft.net/utils/iconsext.html) - Alternative extraction familiar
+### 🧪 Smart Features
+- ⚡ **Instant Refresh** - No need to restart Explorer
+- 🛡️ **Safe Operation** - Preserves file attributes, avoids conflicts
+- 🔍 **Deep Scanning** - Uses 4 different methods to extract icons
+- 📝 **Debug Logging** - Full operation logs for troubleshooting
+- 🎯 **Auto-Rename** - Prevents file overwrites automatically
 
+---
 
-### 📦 Initiation Ritual
+## 🚀 Getting Started
 
-#### Path 1: Wandering Wizard (Portable)
+### Requirements
+
+**Minimum:**
+- Windows 7 or later
+- Administrator rights (only for context menu installation)
+
+**Optional Tools** (for full functionality):
+- [ImageMagick](https://imagemagick.org/script/download.php#windows) - For image conversion
+- [ResourceHacker](http://www.angusj.com/resourcehacker/) - For EXE icon extraction
+- [IconsExtract](https://www.nirsoft.net/utils/iconsext.html) - Alternative extraction tool
+
+> 💡 **Tip:** Place optional tools in the `resources` folder for portable use!
+
+### 📦 Installation
+
+#### Option 1: Portable Mode (No Installation)
 ```batch
-1. Download the spellbook (IconWizard.exe)
-2. Double-click to begin your journey
-3. Start casting immediately! ✨
+1. Download IconWizard.exe
+2. Double-click to run
+3. Start using it immediately! ✨
 ```
 
-#### Path 2: Tower Installation (Permanent Residence)
+#### Option 2: Full Install (Adds Right-Click Menu)
 ```batch
-1. Right-click IconWizard.exe
-2. Double-click to Open
-3. Choose [I] - Inscribe Spells into Context Menu
-4. Enjoy right-click magic everywhere! ✨
+1. Right-click IconWizard.exe and run
+2. Choose [I] - Install Context Menu
+3. Now you can right-click any folder → "IconWizard - Change Icon"
+4. Enjoy! ✨
 ```
 
 ---
 
-## ⚡ Casting Your First Spell
+## ⚡ How to Use
 
-### 💫 Method 1: The Quick Cast (Recommended)
+### 💫 Method 1: Quick Mode (Easiest)
 ```
-1. Drag a folder onto the wizard's staff (the .bat file)
-2. Choose your enchantment
-3. Watch the magic happen! ✨
+1. Drag a folder onto IconWizard.exe
+2. Pick an icon from the options
+3. Done! ✨
 ```
 
-### 🖱️ Method 2: The Right-Click Incantation
+### 🖱️ Method 2: Right-Click Menu
 ```
 1. Right-click any folder
 2. Select "IconWizard - Change Icon"
-3. Witness the transformation! 🎆
+3. Choose your icon!
 ```
 
-### 📜 Method 3: The Grimoire Way
+### 📜 Method 3: Main Menu
 ```
-1. Summon the wizard (run the script)
-2. Choose your spell from the arcane menu
-3. Follow the mystical prompts
+1. Run IconWizard.exe
+2. Choose an option from the menu
+3. Follow the prompts
 ```
 
 ---
 
 ## 📸 Screenshots
 
-### Main Spellbook
+### Main Menu
 ```
  ========================================================================
                           IconWizard by ridwan47
  ========================================================================
 
- TIP: Drag a folder onto the wizard for quick spellcasting
+ TIP: Drag a folder onto IconWizard for quick access
 
  ========================================================================
-                          ENCHANTMENT MODES
+                          MAIN MENU
  ========================================================================
 
-   --- FOLDER ICON MAGIC ---
-   [1]  Browse for a folder to enchant
-   [2]  Summon folder path manually
-   [3]  Cast spell on all subfolders
+   --- FOLDER ICON CHANGER ---
+   [1]  Browse for a folder
+   [2]  Paste folder path manually
+   [3]  Process all subfolders
 
-   --- IMAGE TRANSMUTATION ---
-   [4]  Icon Conversion Spells
+   --- IMAGE CONVERTER ---
+   [4]  Conversion Tools
 ```
 
 ---
 
-## 🎪 Magical Use Cases
+## 🎪 Use Cases
 
-### 🎮 Game /Software Library Enchantment
-Give each game folder its own icon extracted from the game's essence!
+### 🎮 Game/Software Library Organization
+Extract icons from game executables and apply them to folders:
 ```batch
 1. Right-click game folder
 2. Choose "IconWizard - Change Icon"
 3. Select "Process this folder"
-4. Watch the transmutation! 🔮
+4. Watch it find and apply the best icon! 🎮
 ```
 
-### 🎨 Design Asset Transmutation
-Convert all your PNGs to ICOs with a single incantation:
+### 🎨 Design Projects
+Convert all your design files to ICO format at once:
 ```batch
-1. Open the Image Transmutation grimoire
+1. Open Image Converter
 2. Choose "Convert Entire Folder"
-3. Select your PNG collection
-4. Brew some potion while it converts 🧪
+3. Select your image folder
+4. Get coffee while it processes ☕
 ```
 
-### 🏢 Corporate Folder Beautification
-Transform boring work folders into works of art:
+### 🏢 Professional Organization
+Make your work folders easy to identify visually:
 ```batch
-1. Conjure custom project icons
-2. Cast mass enchantment on all folders
-3. Impress your fellow wizards
-4. Get promoted to Archmage (results may vary)
+1. Create custom icons for each project
+2. Apply them in batch to all folders
+3. Never mix up projects again!
 ```
 
 ---
 
-### Exclusion Runes
+## 🔧 Configuration
+
+### Skip Patterns
+You can customize which files to ignore when scanning:
 ```batch
-REM Ignore these cursed patterns when divining:
 set "skipFiles=7z,CRC,SFV,dxweb,cheat,protect,launch,crash"
 ```
 
-### Familiar Locations
+### Resource Path
+Tools should be placed in the resources folder:
 ```batch
-REM Where your magical companions reside:
 set "resourcesPath=%~dp0resources\"
 ```
 
 ---
 
-## 📋 Wizard's Journal (Debug Mode)
+## 🐛 Troubleshooting
 
-Having mystical mishaps? Consult the ancient logs:
+### "ImageMagick Not Found"
+**Fix:** Download ImageMagick and place `magick.exe` in the `resources` folder.
+
+### "Could not extract icon from EXE"
+**Fix:** The EXE might not have an icon, or it's protected. The tool tries 4 different methods automatically.
+
+### "Access Denied"
+**Fix:** Run as administrator. Right-click → "Run as administrator"
+
+### Context Menu Not Showing
+**Fix:** Reinstall with admin rights. Choose option [I] from the main menu.
+
+### Icons Not Refreshing
+**Fix:** Make sure `FolderIconUpdater.exe` is in the `resources` folder.
+
+---
+
+## 📋 Debug Logs
+
+Having issues? Check the log file:
 ```
 Location: %TEMP%\_folder_icon_debug.log
 ```
 
-Every incantation is recorded with temporal markings. Perfect for understanding what magic occurred (or misfired)!
+Every operation is logged with timestamps - perfect for troubleshooting!
+
+---
+
+## 🤝 Contributing
+
+Found a bug? Want to add features? Pull requests welcome!
+
+**Ideas for contributors:**
+- 🌙 Dark mode interface
+- 🌍 Multi-language support
+- 🎨 More icon style presets
+- 📦 Additional conversion formats
+- 🎯 Icon preview feature
 
 ---
 
 ## 📜 License
 
-MIT License - Go wild, but don't blame me if your cat suddenly has a different icon.
+MIT License - Free to use, modify, and share!
 
 ---
 
-## 🙏 Acknowledgments to Fellow Wizards
+## 🙏 Credits
 
-**Grand Wizard:** ridwan47
+**Created by:** ridwan47
 
-**Crafted with:**
-- ✨Google Gemini 2.5 Pro
-- 🪄 Batch script sorcery
-- 💪 Unwavering determination
+**Built with:**
+- ✨ Google Gemini 2.5 Pro (AI assistance)
+- 💻 Batch script magic
+- 💪 Determination and coffee
 
-**Thanks to the Ancient Order:**
-- ImageMagick Archmages
-- NirSoft Guild (IconsExtract)
+**Special thanks:**
+- ImageMagick team
+- NirSoft (IconsExtract)
 - Angus Johnson (ResourceHacker)
-- ramdany7 for FolderIconUpdater
+- ramdany7 (FolderIconUpdater)
 
 ---
 
-## 📞 Summon the Wizard
+## 📞 Support
 
-Having issues? Questions? Want to share your legendary icon collections?
+Need help? Have questions? Want to share cool icon setups?
 
-- 🐛 [Report a Curse](https://github.com/ridwan47/iconwizard/issues)
-- 💬 [Wizard's Council](https://github.com/ridwan47/iconwizard/discussions)
-- ⭐ Leave a star if the magic worked for you!
+- 🐛 [Report Issues](https://github.com/ridwan47/iconwizard/issues)
+- 💬 [Discussions](https://github.com/ridwan47/iconwizard/discussions)
+- ⭐ Star the repo if you find it useful!
 
 ---
 
-## 🎉 Arcane Secrets
+## 🎉 Fun Facts
 
-- This grimoire contains over 2,000 lines of batch enchantments
-- Can divine through 50,000 EXE icon indices (though who needs that many?)
-- Supports UTF-8 runes because your folders might speak ancient tongues
-- The debug journal has witnessed unspeakable things
-- Rounded corners use actual polygon transmutation circles
+- Over 2,000 lines of batch script code
+- Can scan up to 50,000 icon indices in EXE files
+- Supports UTF-8 for international file names
+- Rounded corners use advanced ImageMagick processing
+- Debug logs capture everything (including the weird stuff)
 
 ---
 
 <div align="center">
 
-### Forged with ✨ and excessive use of GOTO teleportation spells
+### Made with ✨ and way too many GOTO statements
 
-**[⬆ Return to the Tower Top](#-iconwizard)**
+**[⬆ Back to Top](#-iconwizard)**
 
 </div>
