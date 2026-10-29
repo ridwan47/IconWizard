@@ -1,0 +1,2872 @@
+::[Bat To Exe Converter]
+::
+::fBE1pAF6MU+EWHzeyGszJxUUew2YPXm+RudSuNTS7OWJ4noUTuMtfLPp36eBNfIQ71bYU5kh0n9IscgDAi5IehO/ax16rHZH1g==
+::fBE1pAF6MU+EWHzeyGszJxUUew2YPXm+RudSuNTS7OWJ4noUTuMtfLPp36eBNfIQ71bYfJUi2DRTm8Rs
+::fBE1pAF6MU+EWHzeyGszJxUUew2YPXm+RudSuNTS7OWJ4noUTuMtfLPp36eBNfIQ71bYXJUi2Gl/gN8eDRhMMBeza28=
+::fBE1pAF6MU+EWHzeyGszJxUUew2YPXm+RudSuNTS7OWJ4noUTuMtfLPp36eBNfIQ71bYeJcq33lR1s4UCXs=
+::fBE1pAF6MU+EWHzeyGszJxUUew2YPXm+RudSuNTS7OWJ4noUTuMtfLPp36eBNfIQ71bYR5M+2W9Im84kDRhTewDlaxcxyQ==
+::fBE1pAF6MU+EWHzeyGszJxUUew2YPXm+RudSuNTS7OWJ4noUTuMtfLPp36eBNfIQ71bYXJUi2E1TgsoeCFVafwbL
+::YAwzoRdxOk+EWAjk
+::fBw5plQjdCqDJHCH+0xwHxJOTRaGfDn0Vok16+f1r92OuEwPUN4NfZzUz6aNJfMv40bre9gk1XU6
+::YAwzuBVtJxjWCl3EqQJgSA==
+::ZR4luwNxJguZRRnk
+::Yhs/ulQjdF65
+::cxAkpRVqdFKZSDk=
+::cBs/ulQjdF65
+::ZR41oxFsdFKZSTk=
+::eBoioBt6dFKZSDk=
+::cRo6pxp7LAbNWATEpSI=
+::egkzugNsPRvcWATEpSI=
+::dAsiuh18IRvcCxnZtBJQ
+::cRYluBh/LU+EWAnk
+::YxY4rhs+aU+IeA==
+::cxY6rQJ7JhzQF1fEqQJiZks0
+::ZQ05rAF9IBncCkqN+0xwdVsGAlTi
+::ZQ05rAF9IAHYFVzEqQIZKxRaDDOLJmqoAtU=
+::eg0/rx1wNQPfEVWB+kM9LVsJDGQ=
+::fBEirQZwNQPfEVWB+kM9LVsJDGQ=
+::cRolqwZ3JBvQF1fEqQJQ
+::dhA7uBVwLU+EWDk=
+::YQ03rBFzNR3SWATElA==
+::dhAmsQZ3MwfNWATExks0PxpaGFPi
+::ZQ0/vhVqMQ3MEVWAtB9wSA==
+::Zg8zqx1/OA3MEVWAtB9wSA==
+::dhA7pRFwIByZRRnk
+::Zh4grVQjdCqDJHCH+0xwHxJOTRaGfDn0Vok16+f1r92OuEwPUKIpKsGLlLGWJYA=
+::YB416Ek+ZG8=
+::
+::
+::978f952a14a936cc963da21a135fa983
+@echo off
+REM --- "exit" must close the WHOLE script from any menu depth (so E is pressed only once).
+REM --- Double-click and the compiled .exe already run inside their own cmd window, so a plain
+REM --- "exit" is enough there. Only when a .bat is started from an already-open console do we
+REM --- re-launch ourselves in a child cmd, so "exit" does not close the user's console.
+REM --- (Never re-launch when %~f0 is an .exe: Bat To Exe reports the exe's own path there.)
+if defined IW_CHILD goto :IW_Start
+set "IW_CL=%cmdcmdline%"
+set "IW_CL=%IW_CL:"=%"
+if not "%IW_CL:/c=%"=="%IW_CL%" goto :IW_Start
+if not "%IW_CL:/k=%"=="%IW_CL%" goto :IW_Start
+if /i not "%~x0"==".bat" if /i not "%~x0"==".cmd" goto :IW_Start
+setlocal
+set "IW_CHILD=1"
+cmd /c ""%~f0" %*"
+exit /b
+:IW_Start
+REM --- If a launcher passes the program's own path as the first argument, ignore it
+REM --- so the script starts on the Main Menu.
+if not "%~1"=="" if /i "%~f1"=="%~f0" shift /1
+REM ============================================================================
+REM             	  Icon Wizard by ridwan47
+REM ============================================================================
+REM SETTINGS:
+REM   - Set ExeMode to 0 for this script to install ITSELF. (Default Standalone)
+REM   - Set ExeMode to 1 for this script to act as an installer for the
+REM     'IconWizard.bat' located in the 'resources' sub-folder.
+REM ============================================================================
+set "ExeMode=1"
+REM ============================================================================
+
+setlocal enabledelayedexpansion
+
+REM Enable UTF-8 support for special characters
+chcp 65001 >nul 2>nul
+
+REM ============================================================================
+REM User Configuration
+REM ============================================================================
+REM Installation paths
+set "INSTALL_DIR=%ProgramFiles%\Icon Wizard"
+set "INSTALL_RESOURCES=%INSTALL_DIR%\Resources"
+set "SCRIPT_VERSION=2.0"
+
+REM Check if we're running from Program Files (installed mode)
+set "isInstalled=0"
+echo "%~dp0" | findstr /I /C:"Icon Wizard" >nul
+if not errorlevel 1 (
+    set "isInstalled=1"
+)
+
+REM Set resource path based on installation status
+if "%isInstalled%"=="1" (
+    REM Running from installed location - resources are in Resources subfolder
+    set "resourcesPath=%b2eincfilepath%\"
+) else (
+    REM Running from portable location - resources are in resources subfolder
+    set "resourcesPath=%b2eincfilepath%\"
+)
+
+REM --- Icon Changer Dependencies ---
+set "IconUpdaterPath=%resourcesPath%FolderIconUpdater.exe"
+
+REM --- Context Menu Icon Configuration ---
+set "ContextMenuIconPath=%resourcesPath%icon.ico"
+
+REM --- Configuration File (optional) ---
+set "configFile=%~dp0config.ini"
+REM ============================================================================
+
+REM --- DEBUG FILE SETUP in TEMP Directory ---
+set "debugLogFile=%TEMP%\_folder_icon_debug.log"
+del "%debugLogFile%" 2>nul
+call :DebugLog "======== SCRIPT SESSION STARTED v%SCRIPT_VERSION% (ExeMode=%ExeMode%) ========"
+
+REM --- Validate Critical Resources ---
+call :ValidateResources
+
+REM ----------------------------------------------------------------------------
+REM Configuration: Files and Resources
+REM ----------------------------------------------------------------------------
+set "skipFiles=7z,CRC,SFV,dxweb,cheat,protect,launch,crash,patch,redist,language,QtWeb,mod,version,overlay,error,dump,node.exe,handler,lumaplay,createdump"
+
+REM ----------------------------------------------------------------------------
+REM [PRIMARY METHOD] Check for a folder/file being passed to the script
+REM ----------------------------------------------------------------------------
+call :DebugLog "Script started with parameter: '%~1'"
+
+if not "%~1"=="" (
+    REM Check for context menu installation parameters first
+    if /i "%~1"=="--install-context" ( 
+        call :DebugLog "Installation parameter detected: --install-context"
+        goto :InstallContextMenu 
+    )
+    if /i "%~1"=="--uninstall-context" ( 
+        call :DebugLog "Installation parameter detected: --uninstall-context"
+        goto :UninstallContextMenu 
+    )
+    
+    call :DebugLog "Checking if parameter is a folder or file..."
+    
+    REM Check if it's a folder
+    if exist "%~1\" (
+        call :DebugLog "Parameter is a FOLDER: %~1"
+        call :OfferFolderActions "%~f1"
+        call :FolderOperationCompleteMenu "%~f1"
+        goto :ExitScript
+    ) else if exist "%~1" (
+        call :DebugLog "Parameter is a FILE: %~1"
+        REM It's a file - check if it's a supported image/icon/exe file
+        set "fileExt=%~x1"
+        call :DebugLog "File extension detected: !fileExt!"
+        
+        if /i "!fileExt!"==".png" ( goto :HandleFileConversion )
+        if /i "!fileExt!"==".jpg" ( goto :HandleFileConversion )
+        if /i "!fileExt!"==".jpeg" ( goto :HandleFileConversion )
+        if /i "!fileExt!"==".bmp" ( goto :HandleFileConversion )
+        if /i "!fileExt!"==".gif" ( goto :HandleFileConversion )
+        if /i "!fileExt!"==".svg" ( goto :HandleFileConversion )
+        if /i "!fileExt!"==".ico" ( goto :HandleFileConversion )
+        if /i "!fileExt!"==".exe" ( goto :HandleFileConversion )
+        if /i "!fileExt!"==".webp" ( goto :HandleFileConversion )
+        
+        call :DebugLog "File type NOT SUPPORTED: !fileExt!"
+        echo The file you dropped is not a supported format.
+        echo Supported formats: PNG, JPG, BMP, GIF, SVG, ICO, EXE, WebP
+        pause
+        goto :eof
+    ) else (
+        call :DebugLog "ERROR: Parameter is neither a valid folder nor file: %~1"
+        echo The item you dropped onto the script is not valid.
+        pause
+        goto :eof
+    )
+) else (
+    call :DebugLog "No parameter passed - showing main menu"
+)
+
+:MainMenu
+call :DebugLog "Main Menu displayed."
+cls
+echo.
+echo  ========================================================================
+echo                       Icon Wizard v%SCRIPT_VERSION%
+echo  ========================================================================
+echo.
+echo    --- FOLDER ICONS ---
+echo    [1]  Change icon of ONE folder  (browse for the folder)
+echo    [2]  Change icon of ONE folder  (paste the folder path)
+echo    [3]  BATCH change icons - go through every folder inside a folder
+echo    [4]  FIX folders whose icon does not show  (single or batch)
+echo.
+echo    --- IMAGE CONVERTER ---
+echo    [5]  Icon Conversion Tools
+echo.
+echo  ------------------------------------------------------------------------
+echo    [I]  Install Context Menu       [U]  Uninstall Context Menu
+echo    [E]  Exit
+echo  ========================================================================
+echo.
+echo   TIP: Drag a folder onto this .bat file for quick single-folder use.
+echo   Debug log: %temp%\_folder_icon_debug.log
+echo.
+
+choice /C:12345IUE /N /M "  Select your choice: "
+
+if errorlevel 8 goto :QuitNow
+if errorlevel 7 ( call :DebugLog "Main Menu Choice: U" & goto :UninstallContextMenu )
+if errorlevel 6 ( call :DebugLog "Main Menu Choice: I" & goto :InstallContextMenu )
+if errorlevel 5 ( call :DebugLog "Main Menu Choice: 5" & goto :ImageConverterMainMenu )
+if errorlevel 4 ( call :DebugLog "Main Menu Choice: 4 (Fix)" & call :FixFolderIcons & goto :MainMenu )
+if errorlevel 3 ( call :DebugLog "Main Menu Choice: 3 (Batch)" & call :BatchChangeIcons & goto :MainMenu )
+if errorlevel 2 ( call :DebugLog "Main Menu Choice: 2" & goto :ManualFolderInput )
+if errorlevel 1 ( call :DebugLog "Main Menu Choice: 1" & goto :BrowseForSingleFolder )
+goto :MainMenu
+
+:BrowseForSingleFolder
+call :DebugLog "Option 1: Browse for single folder selected."
+echo.
+echo ...Opening folder browser...
+
+REM Escape current directory for PowerShell
+set "currentDir=%CD%"
+call :EscapeForPowerShell "%currentDir%" escapedDir
+
+set "psCommand=Add-Type -AssemblyName System.Windows.Forms; $f=New-Object System.Windows.Forms.OpenFileDialog; $f.Title='Select a folder by navigating into it and clicking Open'; $f.ValidateNames=$false; $f.CheckFileExists=$false; $f.CheckPathExists=$true; $f.InitialDirectory='!escapedDir!'; $f.FileName='Select This Folder'; if($f.ShowDialog() -eq 'OK'){ [System.IO.Path]::GetDirectoryName($f.FileName) }"
+
+set "selectedFolder="
+for /f "usebackq delims=" %%F in (`powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "!psCommand!"`) do (
+    set "selectedFolder=%%F"
+)
+
+if defined selectedFolder (
+    call :OfferFolderActions "!selectedFolder!"
+    call :FolderOperationCompleteMenu "!selectedFolder!"
+) else (
+    call :DebugLog "Folder browse dialog cancelled."
+    echo ...No folder selected.
+    pause
+)
+goto :MainMenu
+
+:ManualFolderInput
+call :DebugLog "Option 2: Manual path input selected."
+cls
+echo ======================================================
+echo  Manual Folder Path Entry
+echo ======================================================
+echo.
+echo IMPORTANT: Pasting a path works perfectly. Dragging
+echo a path into this window may crash the script.
+echo This is a bug in Windows, not the script.
+echo.
+setlocal enabledelayedexpansion
+set /p "manualPath=Paste folder path and press Enter: "
+call :DebugLog "Manual folder path input received"
+
+if not defined manualPath (
+    call :DebugLog "Manual path input was empty."
+    echo ...No path entered.
+    pause
+    endlocal
+    goto :MainMenu
+)
+
+REM Remove all quotes
+set "cleanPath=!manualPath!"
+set cleanPath=!cleanPath:"=!
+
+REM Trim any leading/trailing spaces
+for /f "tokens=* delims= " %%a in ("!cleanPath!") do set "cleanPath=%%a"
+
+call :DebugLog "Manual path cleaned"
+
+if exist "!cleanPath!\" (
+    call :OfferFolderActions "!cleanPath!"
+    call :FolderOperationCompleteMenu "!cleanPath!"
+) else (
+    call :DebugLog "Manual path was not a valid folder"
+    echo.
+    echo ...ERROR: The path "!cleanPath!" is not a valid folder.
+    pause
+)
+endlocal
+goto :MainMenu
+
+:ExitScript
+call :Cleanup
+call :DebugLog "======== SCRIPT SESSION FINISHED (Normal Exit) ========"
+exit
+
+:QuitNow
+call :Cleanup
+call :DebugLog "User chose to exit."
+exit
+
+:HandleFileConversion
+    call :DebugLog "File dropped/context menu used. Routing to image converter."
+    set "argPath=%~f1"
+    call :ImageConverterFileMenu
+    goto :EndExecutionMenu
+    
+:OfferFolderActions
+    setlocal
+    set "folderPath=%~f1"
+    cls
+    echo A folder has been selected.
+    echo ======================================================
+    echo FOLDER: %folderPath%
+    echo ======================================================
+    echo.
+    echo What would you like to do?
+    echo.
+    echo   1. Browse for an external icon (Windows Browse GUI)
+    echo   2. Drag ^& Drop Icon File / Paste icon path manually
+    echo   3. Process this folder (find icons inside the folder)
+    echo   4. BATCH: change icons of every folder INSIDE this folder
+    echo   5. FIX: repair icon display for this folder / its subfolders
+    echo ===============================================
+    echo   0. Skip Folder
+    echo   M. Main Menu
+    echo   E. Exit
+    echo.
+    choice /C:123450ME /N /M "Select an option: "
+
+    if errorlevel 8 goto :QuitNow
+    if errorlevel 7 (
+        call :DebugLog "Action Choice: M (Main Menu)"
+        endlocal
+        set "returnToMenu=true"
+        goto :MainMenu
+    )
+    if errorlevel 6 (
+        call :DebugLog "Action Choice: 0 (Skip folder)"
+        echo ...Skipping folder.
+        endlocal
+        goto :eof
+    )
+    if errorlevel 5 (
+        call :DebugLog "Action Choice: 5 (Fix icons)"
+        endlocal & call :FixRun "%folderPath%"
+        goto :eof
+    )
+    if errorlevel 4 (
+        call :DebugLog "Action Choice: 4 (Batch subfolders)"
+        endlocal & call :BatchRun "%folderPath%"
+        goto :eof
+    )
+    if errorlevel 3 (
+        call :DebugLog "Action Choice: 3 (Process folder)"
+        endlocal & call :ProcessFolder "%folderPath%"
+        goto :eof
+    )
+    if errorlevel 2 (
+        call :DebugLog "Action Choice: 2 (Manual icon path)"
+        endlocal & call :ManualIconInput "%folderPath%"
+        goto :eof
+    )
+    if errorlevel 1 (
+        call :DebugLog "Action Choice: 1 (Browse for external icon)"
+        endlocal & call :BrowseForExternalIcon "%folderPath%"
+        goto :eof
+    )
+goto :eof
+
+:ProcessFolder
+    setlocal disabledelayedexpansion
+    set "targetFolder=%~f1"
+    call :DebugLog "--- Begin Processing Folder: %targetFolder% ---"
+    
+    set "tempFile=%TEMP%\foldericon_%RANDOM%.txt"
+    set "icoTempFile=%TEMP%\foldericon_ico_%RANDOM%.txt"
+    set "exeTempFile=%TEMP%\foldericon_exe_%RANDOM%.txt"
+    if exist "%tempFile%" del "%tempFile%"
+    if exist "%icoTempFile%" del "%icoTempFile%"
+    if exist "%exeTempFile%" del "%exeTempFile%"
+
+    echo ...Scanning for suitable files, please wait...
+    
+    for /f "delims=" %%J in ('dir /s /b /a-d "%targetFolder%\*.ico" 2^>nul') do (
+        set "skipFlag="
+        for %%S in (%skipFiles%) do (echo "%%~nxJ" | findstr /i /L "%%S" >nul 2>nul && set "skipFlag=1")
+        if not defined skipFlag ((echo %%J^|%%~nxJ^|%%~dpJ)>>"%icoTempFile%")
+    )
+    for /f "delims=" %%J in ('dir /s /b /a-d "%targetFolder%\*.exe" 2^>nul') do (
+        set "skipFlag="
+        for %%S in (%skipFiles%) do (echo "%%~nxJ" | findstr /i /L "%%S" >nul 2>nul && set "skipFlag=1")
+        if not defined skipFlag ((echo %%J^|%%~nxJ^|%%~dpJ)>>"%exeTempFile%")
+    )
+
+    if exist "%icoTempFile%" type "%icoTempFile%" >> "%tempFile%"
+    if exist "%exeTempFile%" type "%exeTempFile%" >> "%tempFile%"
+
+    set "icoCount=0"
+    set "totalCount=0"
+    if exist "%icoTempFile%" ( for /f "usebackq" %%L in ("%icoTempFile%") do set /a icoCount+=1 )
+    if exist "%tempFile%" ( for /f "usebackq" %%L in ("%tempFile%") do set /a totalCount+=1 )
+    call :DebugLog "Found %totalCount% suitable files (%icoCount% ICOs)."
+    
+    if %totalCount% equ 0 (
+        echo ...No suitable .ico or .exe files found.
+        call :PromptUserChoice "%targetFolder%" "%tempFile%" 0 0
+    ) else if %totalCount% equ 1 (
+        for /f "usebackq tokens=1,2 delims=|" %%A in ("%tempFile%") do (
+            echo ...One suitable file found, auto-selecting: %%B
+            call :DebugLog "Auto-selecting single file: %%B"
+            call :SetFolderIcon "%targetFolder%" "%%A"
+        )
+    ) else (
+        call :PromptUserChoice "%targetFolder%" "%tempFile%" %totalCount% %icoCount%
+    )
+    
+    if exist "%tempFile%" del "%tempFile%"
+    if exist "%icoTempFile%" del "%icoTempFile%"
+    if exist "%exeTempFile%" del "%exeTempFile%"
+    call :DebugLog "--- End Processing Folder: %targetFolder% ---"
+    endlocal
+goto :eof
+
+:PromptUserChoice
+    setlocal disabledelayedexpansion
+    set "targetFolder=%~f1"
+    set "tempFileArg=%~2"
+    set "totalCountArg=%~3"
+    set "icoCountArg=%~4"
+    
+    REM Store basePath before enabling delayed expansion
+    set "basePath=%targetFolder%\"
+    
+    echo.
+    if %totalCountArg% gtr 0 (
+        echo Multiple suitable files found. Please choose one:
+    ) else (
+        echo No local files found. You can browse for an icon.
+    )
+    echo.
+    echo   0. [Skip this folder]
+    if %totalCountArg% gtr 0 (
+        set "displayNum=0"
+        set "headerPrinted="
+        setlocal enabledelayedexpansion
+        
+        if %icoCountArg% gtr 0 echo. & echo   --- ICO Files ---
+        
+        for /f "usebackq tokens=2,3 delims=|" %%F in ("!tempFileArg!") do (
+            set /a displayNum+=1
+            if !displayNum! gtr %icoCountArg% if not defined headerPrinted (
+                echo. & echo   --- EXE Files ---
+                set "headerPrinted=1"
+            )
+
+            set "fileName=%%F"
+            set "parentDir=%%G"
+            
+            REM Compare paths to determine location display
+            if /i "!parentDir!"=="!basePath!" (
+                set "location=root"
+            ) else (
+                REM Use temporary variable for substring replacement
+                set "location=!parentDir!"
+                for %%B in ("!basePath!") do set "location=!location:%%~B=!"
+                
+                REM Clean up leading backslash if present
+                if "!location:~0,1!"=="\" set "location=!location:~1!"
+                
+                REM Add leading backslash for display
+                if not "!location!"=="" set "location=\!location!"
+            )
+
+            set "paddedName=!fileName!                                        "
+            set "paddedName=!paddedName:~0,35!"
+
+            echo   !displayNum!. !paddedName! --- (!location!)
+        )
+        endlocal
+    )
+    echo. & echo   B. [Browse for another .ico file]
+    echo   M. [Return to Main Menu]
+    echo   E. [Exit]
+    echo.
+    
+    if %totalCountArg% gtr 9 goto :PromptUserChoice_Legacy
+
+    setlocal enabledelayedexpansion
+    set "choiceChars=0BME"
+    for /L %%N in (1,1,%totalCountArg%) do set "choiceChars=!choiceChars!%%N"
+    
+    echo Press a key to make your choice (no Enter needed)...
+    choice /C:!choiceChars! /N
+
+    set "choiceErrorLevel=%errorlevel%"
+    endlocal & set choiceErrorLevel=%choiceErrorLevel%
+
+    if %choiceErrorLevel% equ 1 (
+        echo ...Skipping.
+        call :DebugLog "User chose to skip."
+        endlocal
+        goto :eof
+    )
+    if %choiceErrorLevel% equ 2 (
+        call :DebugLog "User chose to browse for external icon."
+        endlocal & call :BrowseForExternalIcon "%targetFolder%"
+        goto :eof
+    )
+    if %choiceErrorLevel% equ 3 (
+        call :DebugLog "User chose M for Main Menu."
+        endlocal
+        set "returnToMenu=true"
+        goto :MainMenu
+    )
+    if %choiceErrorLevel% equ 4 ( call :Cleanup & exit )
+    
+    set /a "selectedChoice = choiceErrorLevel - 4"
+    call :FindSelectionByNumber "%targetFolder%" "%tempFileArg%" %selectedChoice%
+    endlocal
+goto :eof
+
+:PromptUserChoice_Legacy
+    set /p "userChoice=Type your choice (0-%totalCountArg%, B, M, or E) and press Enter: "
+    call :DebugLog "Legacy prompt input received"
+
+    if /i "%userChoice%"=="e" ( call :Cleanup & exit )
+    if /i "%userChoice%"=="m" (
+        call :DebugLog "User chose M for Main Menu."
+        endlocal
+        set "returnToMenu=true"
+        goto :MainMenu
+    )
+    if /i "%userChoice%"=="b" (
+        call :DebugLog "User chose to browse for external icon."
+        call :BrowseForExternalIcon "%targetFolder%"
+        endlocal
+        goto :eof
+    )
+    set /a "selectedChoice=-1" & set /a "selectedChoice=%userChoice%" 2>nul
+    
+    if %selectedChoice% lss 1 (
+        if %selectedChoice% equ 0 ( echo ...Skipping. & call :DebugLog "User chose to skip." ) else ( echo ...Invalid choice. )
+        endlocal
+        goto :eof
+    )
+    if %selectedChoice% gtr %totalCountArg% (
+        echo ...Invalid choice.
+        endlocal
+        goto :eof
+    )
+    call :FindSelectionByNumber "%targetFolder%" "%tempFileArg%" %selectedChoice%
+    endlocal
+goto :eof
+
+:FindSelectionByNumber
+    setlocal
+    set "targetFolder=%~1"
+    set "tempFileArg=%~2"
+    set "selectedChoice=%~3"
+    call :DebugLog "User selected item #%selectedChoice% from the list."
+    set "foundPath="
+
+    REM --- OPTIMIZED: Use findstr to get the Nth line directly ---
+    for /f "tokens=1* delims=:" %%A in ('findstr /N "^" "%tempFileArg%"') do (
+        if %%A equ %selectedChoice% (
+            for /f "tokens=1 delims=|" %%C in ("%%B") do (
+                set "foundPath=%%C"
+                goto :SelectionFound
+            )
+        )
+    )
+
+:SelectionFound
+    if defined foundPath (
+        call :DebugLog "Matched item #%selectedChoice% to path: %foundPath%"
+        echo.
+        for %%F in ("%foundPath%") do echo ...You selected: %%~nxF
+        endlocal & call :SetFolderIcon "%targetFolder%" "%foundPath%"
+    ) else (
+        endlocal
+    )
+goto :eof
+
+:BrowseForExternalIcon
+    set "browseTarget=%~f1"
+    echo.
+    echo ...Opening file browser...
+    
+    REM Escape current directory for PowerShell
+    set "currentDir=%CD%"
+    call :EscapeForPowerShell "%currentDir%" escapedDir
+    
+    set "psCommand=Add-Type -AssemblyName System.windows.forms; $f=New-Object System.Windows.Forms.OpenFileDialog; $f.InitialDirectory='!escapedDir!'; $f.Filter='Icon Files (*.ico)|*.ico|All Files (*.*)|*.*'; $f.Title='Select an Icon File'; [void]$f.ShowDialog(); if ($f.FileName -ne '') { $f.FileName }"
+    
+    set "selectedFile="
+    for /f "usebackq delims=" %%F in (`powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "!psCommand!"`) do (
+        set "selectedFile=%%F"
+    )
+
+    if defined selectedFile (
+        call :DebugLog "User browsed and selected external file: %selectedFile%"
+        echo ...You selected: %selectedFile%
+        call :SetFolderIcon "%browseTarget%" "%selectedFile%"
+    ) else (
+        call :DebugLog "User cancelled the browse dialog."
+        echo ...No file selected.
+    )
+goto :eof
+
+:ManualIconInput
+    setlocal enabledelayedexpansion
+    set "targetFolder=%~f1"
+    for %%F in ("%targetFolder%") do set "folderName=%%~nxF"
+    cls
+    echo ======================================================
+    echo  Manual Icon Path Entry ^>^> !folderName!
+    echo ======================================================
+    echo.
+    echo IMPORTANT: Pasting a path works perfectly. Dragging
+    echo a path into this window may crash the script.
+    echo This is a bug in Windows, not the script.
+    echo.
+    set /p "iconPath=Paste icon path (.ico or .exe) and press Enter: "
+    
+    if not defined iconPath (
+        call :DebugLog "Manual icon path input was empty."
+        echo ...No path entered.
+        endlocal
+        goto :eof
+    )
+    
+    REM Remove surrounding quotes if present - use set with quotes
+    set "cleanPath=!iconPath!"
+    set cleanPath=!cleanPath:"=!
+    
+    REM Trim any leading/trailing spaces
+    for /f "tokens=* delims= " %%a in ("!cleanPath!") do set "cleanPath=%%a"
+    
+    call :DebugLog "Manual icon path received"
+    call :DebugLog "Cleaned path: !cleanPath!"
+
+    if not exist "!cleanPath!" (
+        call :DebugLog "Manual icon path does not exist"
+        echo ...ERROR: The file path you entered does not exist.
+        echo ...Path attempted: !cleanPath!
+        pause
+        endlocal
+        goto :eof
+    )
+
+    for %%F in ("!cleanPath!") do set "ext=%%~xF"
+    if /i not "!ext!"==".ico" if /i not "!ext!"==".exe" (
+        call :DebugLog "Manual icon path is not a valid file type"
+        echo ...ERROR: The file must be an .ico or .exe.
+        echo ...Extension detected: !ext!
+        pause
+        endlocal
+        goto :eof
+    )
+    
+    set "finalCleanPath=!cleanPath!"
+    endlocal & call :SetFolderIcon "%targetFolder%" "%finalCleanPath%"
+goto :eof
+
+:SetFolderIcon
+    setlocal disabledelayedexpansion
+    set "targetFolder=%~f1"
+    set "fullPath=%~f2"
+    
+    setlocal enabledelayedexpansion
+    
+    for %%F in ("!fullPath!") do (
+        set "fileName=%%~nxF"
+        set "fileExt=%%~xF"
+    )
+    
+    call :DebugLog "SetFolderIcon: Target Folder is '!targetFolder!'"
+    call :DebugLog "SetFolderIcon: Full Icon Path is '!fullPath!'"
+    
+    echo ...Processing icon for "!fileName!"
+    set "iconPath="
+    
+    pushd "!targetFolder!" || (call :DebugLog "FATAL ERROR: Could not pushd to target folder."& echo ...ERROR: Access denied.& endlocal & endlocal & goto :eof)
+
+    REM --- Use GOTO for robust conditional logic ---
+    if /i "!fileExt!"==".exe" goto :SetIcon_ProcessExe
+    if /i "!fileExt!"==".ico" goto :SetIcon_ProcessIco
+    goto :SetIcon_ProcessOther
+
+:SetIcon_ProcessExe
+    call :DebugLog "File is an EXE. Using full absolute path."
+    set "iconPath=!fullPath!"
+    goto :SetIcon_EndProcessing
+
+:SetIcon_ProcessIco
+    for %%N in ("!fileName!") do (
+        set "baseName=%%~nN"
+        set "ext=%%~xN"
+    )
+    set "finalName=icon_!baseName!!ext!"
+    call :DebugLog "ICO selected. Base proposed name is '!finalName!'."
+    
+    if exist "!finalName!" (
+        set "counter=2"
+        :NameCheckLoop
+        set "finalName=icon_!baseName!_!counter!!ext!"
+        if exist "!finalName!" (
+            set /a counter+=1
+            goto :NameCheckLoop
+        )
+    )
+    call :DebugLog "Conflict check passed. Final name will be '!finalName!'."
+    
+    REM --- Try to copy first without modifying attributes ---
+    call :DebugLog "Attempting to copy '!fullPath!' to '!finalName!'."
+    copy /Y "!fullPath!" "!finalName!" >nul 2>nul
+
+    if not errorlevel 1 (
+        echo ...Icon file copied to '!finalName!'.
+        set "iconPath=!finalName!"
+        call :DebugLog "Copy succeeded without attribute modification."
+    ) else (
+        call :DebugLog "Initial copy failed. Checking file attributes..."
+        
+        REM --- Save original attributes ---
+        set "originalAttribs="
+        for /f "tokens=*" %%A in ('attrib "!fullPath!"') do set "originalAttribs=%%A"
+        call :DebugLog "Original attributes: !originalAttribs!"
+        
+        REM --- Remove restrictive attributes and try again ---
+        call :DebugLog "Removing attributes to attempt copy..."
+        attrib -s -h -a -r "!fullPath!" >nul 2>nul
+        
+        copy /Y "!fullPath!" "!finalName!" >nul 2>nul
+        
+        if not errorlevel 1 (
+            echo ...Icon file copied to '!finalName!'.
+            set "iconPath=!finalName!"
+            call :DebugLog "Copy succeeded after removing attributes."
+        ) else (
+            call :DebugLog "Copy still failed. Using full absolute path as fallback."
+            echo ...Warning: Could not copy icon into folder. Using original path.
+            set "iconPath=!fullPath!"
+        )
+        
+        REM --- Restore original attributes - System (S) must be last ---
+        if defined originalAttribs (
+            call :DebugLog "Preparing to restore original attributes..."
+            set "attribFlags="
+            
+            REM Process R, A, H first, then S last (System attribute must be applied last)
+            for %%A in (R A H) do (
+                echo "!originalAttribs!" | findstr "%%A" >nul 2>nul
+                if not errorlevel 1 set "attribFlags=!attribFlags! +%%A"
+            )
+            
+            REM Check for System attribute separately to apply it last
+            set "hasSystem="
+            echo "!originalAttribs!" | findstr "S" >nul 2>nul
+            if not errorlevel 1 set "hasSystem=1"
+
+            if defined attribFlags (
+                call :DebugLog "Applying attrib command with flags:!attribFlags!"
+                REM The leading space in attribFlags is intentional and required
+                attrib!attribFlags! "!fullPath!" >nul 2>nul
+            )
+            
+            REM Apply System attribute last if it was present
+            if defined hasSystem (
+                call :DebugLog "Applying System attribute last..."
+                attrib +s "!fullPath!" >nul 2>nul
+            )
+            
+            REM --- Verification Step ---
+            set "finalAttribs="
+            for /f "tokens=*" %%Z in ('attrib "!fullPath!"') do set "finalAttribs=%%Z"
+            call :DebugLog "Verification - Final attributes are: !finalAttribs!"
+        )
+    )
+    goto :SetIcon_EndProcessing
+
+:SetIcon_ProcessOther
+    call :DebugLog "WARNING: Unexpected file extension '!fileExt!'. Using full path."
+    set "iconPath=!fullPath!"
+    goto :SetIcon_EndProcessing
+
+:SetIcon_EndProcessing
+    REM --- Use FolderIconUpdater.exe to set icon with instant refresh ---
+    call :DebugLog "Using FolderIconUpdater.exe with icon path: '!iconPath!'"
+    
+    if exist "%IconUpdaterPath%" (
+        "%IconUpdaterPath%" /f "!targetFolder!" /i "!iconPath!" /a +H+S >nul 2>nul
+        
+        if errorlevel 1 (
+            call :DebugLog "FolderIconUpdater.exe reported an error. Falling back to manual method."
+            echo ...Warning: Icon updater reported an issue. Using fallback method...
+            call :ManualDesktopIniMethod "!targetFolder!" "!iconPath!"
+        )
+    ) else (
+        call :DebugLog "FolderIconUpdater.exe not found. Using manual method."
+        call :ManualDesktopIniMethod "!targetFolder!" "!iconPath!"
+    )
+
+    REM --- Hide the copied/renamed icon file so the folder stays clean ---
+    if defined iconPath if /i not "!iconPath!"=="!fullPath!" (
+        call :DebugLog "Setting attributes (+s +h -a) on local icon file (!iconPath!)."
+        attrib +s +h -a "!iconPath!" >nul 2>nul
+    )
+
+    popd
+    echo ...Folder icon set successfully.
+    endlocal
+    endlocal
+goto :eof
+
+:ManualDesktopIniMethod
+    REM Helper function for manual desktop.ini creation
+    setlocal
+    set "folder=%~1"
+    set "icon=%~2"
+    
+    pushd "%folder%"
+    if exist "desktop.ini" (attrib -s -h -r "desktop.ini" 2>nul & del "desktop.ini" 2>nul)
+    
+    call :DebugLog "Writing to desktop.ini manually..."
+    (
+        echo [.ShellClassInfo]
+        echo IconResource=%icon%,0
+    ) > "desktop.ini"
+
+    call :DebugLog "Setting desktop.ini attributes (+s +h -a)."
+    attrib +s +h -a "desktop.ini" >nul 2>nul
+    
+    REM Set folder as system folder
+    attrib +s "%folder%" >nul 2>nul
+    
+    popd
+    endlocal
+goto :eof
+
+REM ============================================================================
+REM ============================================================================
+REM ==                START OF IMAGE CONVERTER PRO SECTION                    ==
+REM ============================================================================
+REM ============================================================================
+
+:ImageConverterFileMenu
+:: --- Direct file conversion menu when file is passed via context menu or drag-drop ---
+call :DebugLog "ImageConverterFileMenu: Entry point reached"
+call :DebugLog "ImageConverterFileMenu: argPath = '%argPath%'"
+
+SET "MAGICK_EXE=%resourcesPath%magick.exe"
+IF NOT EXIST "%MAGICK_EXE%" (
+    call :DebugLog "FATAL ERROR: ImageMagick not found at: %MAGICK_EXE%"
+    CLS
+    ECHO.
+    ECHO   -------------------------------------------------------------
+    ECHO    [FATAL ERROR] ImageMagick Not Found!
+    ECHO   -------------------------------------------------------------
+    ECHO.
+    ECHO   This function requires ImageMagick to function.
+    ECHO   Please ensure 'magick.exe' is in the resources folder.
+    ECHO.
+    ECHO   Expected Location:
+    ECHO   %MAGICK_EXE%
+    ECHO.
+    PAUSE
+    GOTO :eof
+)
+
+call :DebugLog "ImageMagick found at: %MAGICK_EXE%"
+
+REM Detect file type for smart menu display
+set "fileExt="
+FOR %%F IN ("%argPath%") DO set "fileExt=%%~xF"
+call :DebugLog "Detected file extension: %fileExt%"
+
+set "isImage=0"
+set "isIcon=0"
+set "isExe=0"
+
+if /i "%fileExt%"==".png" set "isImage=1"
+if /i "%fileExt%"==".jpg" set "isImage=1"
+if /i "%fileExt%"==".jpeg" set "isImage=1"
+if /i "%fileExt%"==".bmp" set "isImage=1"
+if /i "%fileExt%"==".gif" set "isImage=1"
+if /i "%fileExt%"==".svg" set "isImage=1"
+if /i "%fileExt%"==".webp" set "isImage=1"
+if /i "%fileExt%"==".ico" set "isIcon=1"
+if /i "%fileExt%"==".exe" set "isExe=1"
+
+call :DebugLog "File type flags: isImage=%isImage%, isIcon=%isIcon%, isExe=%isExe%"
+
+CLS
+ECHO.
+ECHO   ========================================================================
+ECHO                              File Detected
+ECHO   ========================================================================
+ECHO.
+FOR %%F IN ("%argPath%") DO ECHO   File: "%%~nxF"
+FOR %%F IN ("%argPath%") DO ECHO   Path: "%%~dpF"
+ECHO.
+ECHO   Choose an action to perform on this file:
+ECHO.
+
+REM ============================================================================
+REM ==                *** UNIFIED MENU LOGIC (REPAIRED v3) ***                ==
+REM ============================================================================
+set "optionCount=0"
+
+REM --- For regular images (PNG, JPG, etc.) ---
+if "%isImage%"=="1" if "%isIcon%"=="0" (
+    set /a optionCount+=1 & set "option!optionCount!=Convert_ICO" & ECHO     [!optionCount!] Convert to ICO (Standard^)
+    set /a optionCount+=1 & set "option!optionCount!=Convert_ICO_Rounded" & ECHO     [!optionCount!] Convert to ICO (Rounded Corners^)
+)
+REM --- For ICO files ---
+if "%isIcon%"=="1" (
+    set /a optionCount+=1 & set "option!optionCount!=Convert_ICO_Standard_Reprocess" & ECHO     [!optionCount!] Re-process to Standard ICO
+    set /a optionCount+=1 & set "option!optionCount!=Convert_ICO_Rounded" & ECHO     [!optionCount!] Re-process to Rounded ICO
+    set /a optionCount+=1 & set "option!optionCount!=Convert_PNG_Single" & ECHO     [!optionCount!] Convert ICO to PNG (Highest Res^)
+    set /a optionCount+=1 & set "option!optionCount!=Convert_PNG_AllSizes" & ECHO     [!optionCount!] Convert ICO to all PNGs
+)
+REM --- For EXE files ---
+if "%isExe%"=="1" (
+    set /a optionCount+=1 & set "option!optionCount!=Convert_EXE_to_ICO" & ECHO     [!optionCount!] Extract Icon from EXE
+)
+
+REM --- For ANY image file (including icons) ---
+set "isAnyImage=0"
+if "%isImage%"=="1" set "isAnyImage=1"
+if "%isIcon%"=="1" set "isAnyImage=1"
+if "%isAnyImage%"=="1" (
+    ECHO.
+    ECHO   ------------------------------------------------------------------------
+    ECHO     [P] Convert Image to PNG
+    ECHO     [J] Convert Image to JPG
+    ECHO     [W] Convert Image to Webp
+    ECHO   ------------------------------------------------------------------------
+)
+call :DebugLog "Final numeric option count: %optionCount%"
+
+REM --- Auto-proceed if only one action is available ---
+if "%optionCount%"=="1" if "%isAnyImage%"=="0" (
+    ECHO. & ECHO   Only one action available, auto-proceeding... & timeout /t 1 /nobreak >nul
+    call :DebugLog "Auto-executing single option: !option1!"
+    CALL :!option1! "%argPath%"
+    GOTO :EndExecution
+)
+
+ECHO.
+ECHO   ========================================================================
+ECHO     [M] Return to Main Menu
+ECHO     [E] Exit
+ECHO   ========================================================================
+ECHO.
+
+if "%optionCount%"=="0" if "%isAnyImage%"=="0" (
+    call :DebugLog "ERROR: No menu options available for this file type!"
+    ECHO   [ERROR] Unable to determine valid operations for this file.
+    PAUSE
+    GOTO :eof
+)
+
+REM Build choice string dynamically IN ORDER of appearance
+set "choiceStr="
+for /L %%N in (1,1,%optionCount%) do set "choiceStr=!choiceStr!%%N"
+if "%isAnyImage%"=="1" set "choiceStr=!choiceStr!PJW"
+set "choiceStr=!choiceStr!ME"
+call :DebugLog "Choice string: !choiceStr!"
+
+CHOICE /C !choiceStr! /N /M "Enter your choice: "
+set "userChoiceLvl=%errorlevel%"
+call :DebugLog "User selected choice errorlevel: %userChoiceLvl%"
+
+REM --- This is the reliable way to handle CHOICE errorlevels ---
+set /a "currentLvl=0"
+
+REM --- Check numeric options ---
+for /L %%N in (1,1,%optionCount%) do (
+    set /a currentLvl+=1
+    if %userChoiceLvl% equ !currentLvl! (
+        set "actionToRun=!option%%N!"
+        call :DebugLog "User chose option %%N. Executing: !actionToRun!"
+        CALL :!actionToRun! "%argPath%"
+        GOTO :EndExecution
+    )
+)
+
+REM --- Check letter options ---
+if "%isAnyImage%"=="1" (
+    set /a currentLvl+=1
+    if %userChoiceLvl% equ !currentLvl! (
+        call :DebugLog "User chose P - Convert to PNG"
+        CALL :Convert_to_PNG "%argPath%"
+        GOTO :EndExecution
+    )
+    set /a currentLvl+=1
+    if %userChoiceLvl% equ !currentLvl! (
+        call :DebugLog "User chose J - Convert to JPG"
+        CALL :Convert_to_JPG "%argPath%"
+        GOTO :EndExecution
+    )
+    set /a currentLvl+=1
+    if %userChoiceLvl% equ !currentLvl! (
+        call :DebugLog "User chose W - Convert to WebP"
+        CALL :Convert_to_WEBP "%argPath%"
+        GOTO :EndExecution
+    )
+)
+
+REM --- Check Menu options ---
+set /a currentLvl+=1
+if %userChoiceLvl% equ !currentLvl! (
+    call :DebugLog "User chose M - Main Menu"
+    goto :MainMenu
+)
+set /a currentLvl+=1
+if %userChoiceLvl% equ !currentLvl! (
+    call :DebugLog "User chose E - Exit"
+    call :Cleanup
+    exit
+)
+
+call :DebugLog "ERROR: Invalid choice mapping! Fell through all checks."
+ECHO [ERROR] Invalid selection
+PAUSE
+GOTO :EndExecution
+
+:ImageConverterMainMenu
+:: --- Check for ImageMagick Dependency ---
+SET "MAGICK_EXE=%resourcesPath%magick.exe"
+IF NOT EXIST "%MAGICK_EXE%" (
+    CLS
+    ECHO.
+    ECHO   -------------------------------------------------------------
+    ECHO    [FATAL ERROR] ImageMagick Not Found!
+    ECHO   -------------------------------------------------------------
+    ECHO.
+    ECHO   This function requires ImageMagick to function.
+    ECHO   Please ensure 'magick.exe' is in the resources folder.
+    ECHO.
+    ECHO   Expected Location:
+    ECHO   %MAGICK_EXE%
+    ECHO.
+    PAUSE
+    GOTO :MainMenu
+)
+
+CLS
+ECHO.
+ECHO   ========================================================================
+ECHO                           Icon Converter Pro
+ECHO   ========================================================================
+ECHO.
+ECHO   Select a conversion task for a single file:
+ECHO.
+ECHO     [1] Convert Image to ICO (Standard)
+ECHO     [2] Convert Image to ICO (Rounded Corners)
+ECHO     [3] Re-process ICO to Standard ICO
+ECHO     [4] Convert ICO to PNG (Highest Resolution)
+ECHO     [5] Convert ICO to PNG (All sizes, new folder)
+ECHO     [6] Extract Icon from EXE
+ECHO.
+ECHO   ------------------------------------------------------------------------
+ECHO     [P] Convert Image to PNG
+ECHO     [J] Convert Image to JPG
+ECHO     [W] Convert Image to Webp
+ECHO   ------------------------------------------------------------------------
+ECHO.
+ECHO   ========================================================================
+ECHO     [7] Convert Entire Folder
+ECHO   ========================================================================
+ECHO.
+ECHO   ------------------------------------------------------------------------
+ECHO     [M] Return to Main Menu
+ECHO     [E] Exit
+ECHO   ========================================================================
+ECHO.
+CHOICE /C 1234567PJWME /N /M "Enter your choice: "
+
+IF ERRORLEVEL 12 call :Cleanup & exit
+IF ERRORLEVEL 11 GOTO :MainMenu
+IF ERRORLEVEL 10 GOTO :HandleOptionW
+IF ERRORLEVEL 9 GOTO :HandleOptionJ
+IF ERRORLEVEL 8 GOTO :HandleOptionP
+IF ERRORLEVEL 7 GOTO :HandleFolderConversionMenu
+IF ERRORLEVEL 6 GOTO :HandleOption6
+IF ERRORLEVEL 5 GOTO :HandleOption5
+IF ERRORLEVEL 4 GOTO :HandleOption4
+IF ERRORLEVEL 3 GOTO :HandleOption3
+IF ERRORLEVEL 2 GOTO :HandleOption2
+IF ERRORLEVEL 1 GOTO :HandleOption1
+GOTO :eof
+
+:HandleOption1
+    CALL :GetUserInput "Convert Image to ICO" & IF NOT DEFINED argPath GOTO :ImageConverterMainMenu & CALL :Convert_ICO "%argPath%" & GOTO :EndExecution
+:HandleOption2
+    CALL :GetUserInput "Convert Image to ICO (Rounded Corners)" & IF NOT DEFINED argPath GOTO :ImageConverterMainMenu & CALL :Convert_ICO_Rounded "%argPath%" & GOTO :EndExecution
+:HandleOption3
+    CALL :GetUserInput "Re-process ICO to Standard ICO" & IF NOT DEFINED argPath GOTO :ImageConverterMainMenu & CALL :Convert_ICO_Standard_Reprocess "%argPath%" & GOTO :EndExecution
+:HandleOption4
+    CALL :GetUserInput "Convert ICO to PNG (Highest Resolution)" & IF NOT DEFINED argPath GOTO :ImageConverterMainMenu & CALL :Convert_PNG_Single "%argPath%" & GOTO :EndExecution
+:HandleOption5
+    CALL :GetUserInput "Convert ICO to PNG (All Sizes)" & IF NOT DEFINED argPath GOTO :ImageConverterMainMenu & CALL :Convert_PNG_AllSizes "%argPath%" & GOTO :EndExecution
+:HandleOption6
+    CALL :GetUserInput "Extract Icon from EXE" & IF NOT DEFINED argPath GOTO :ImageConverterMainMenu & CALL :Convert_EXE_to_ICO "%argPath%" & GOTO :EndExecution
+:HandleOptionP
+    CALL :GetUserInput "Convert Image to PNG" & IF NOT DEFINED argPath GOTO :ImageConverterMainMenu & CALL :Convert_to_PNG "%argPath%" & GOTO :EndExecution
+:HandleOptionJ
+    CALL :GetUserInput "Convert Image to JPG" & IF NOT DEFINED argPath GOTO :ImageConverterMainMenu & CALL :Convert_to_JPG "%argPath%" & GOTO :EndExecution
+:HandleOptionW
+    CALL :GetUserInput "Convert Image to WebP" & IF NOT DEFINED argPath GOTO :ImageConverterMainMenu & CALL :Convert_to_WEBP "%argPath%" & GOTO :EndExecution
+
+:HandleFolderConversionMenu
+CLS
+ECHO.
+ECHO   ========================================================================
+ECHO                        Folder Conversion Tasks
+ECHO   ========================================================================
+ECHO.
+ECHO   Select a batch conversion task for an entire folder:
+ECHO.
+ECHO     [1] Convert Entire Folder's Images to ICO (Standard)
+ECHO     [2] Convert Entire Folder's Images to ICO (Rounded Corners)
+ECHO     [3] Re-process Entire Folder's ICOs to Standard ICO
+ECHO     [4] Convert Entire Folder's ICOs to PNG (Highest Resolution)
+ECHO     [5] Convert Entire Folder's ICOs to PNG (All Sizes)
+ECHO     [6] Extract All Icons from Folder's EXEs
+ECHO.
+ECHO   ------------------------------------------------------------------------
+ECHO     [P] Convert Entire Folder's Images to PNG
+ECHO     [J] Convert Entire Folder's Images to JPG
+ECHO     [W] Convert Entire Folder's Images to Webp
+ECHO   ------------------------------------------------------------------------
+ECHO.
+ECHO     [M] Return to Icon Converter Menu
+ECHO     [E] Exit
+ECHO   ========================================================================
+ECHO.
+CHOICE /C 123456PJWME /N /M "Enter your choice: "
+
+IF ERRORLEVEL 11 call :Cleanup & exit
+IF ERRORLEVEL 10 GOTO :ImageConverterMainMenu
+IF ERRORLEVEL 9 GOTO :HandleFolderOptionW
+IF ERRORLEVEL 8 GOTO :HandleFolderOptionJ
+IF ERRORLEVEL 7 GOTO :HandleFolderOptionP
+IF ERRORLEVEL 6 GOTO :HandleFolderOption6
+IF ERRORLEVEL 5 GOTO :HandleFolderOption5
+IF ERRORLEVEL 4 GOTO :HandleFolderOption4
+IF ERRORLEVEL 3 GOTO :HandleFolderOption3
+IF ERRORLEVEL 2 GOTO :HandleFolderOption2
+IF ERRORLEVEL 1 GOTO :HandleFolderOption1
+GOTO :eof
+
+:HandleFolderOption1
+    CALL :GetFolderInput "Convert Folder: Images to ICO (Standard)" & IF NOT DEFINED argPath GOTO :ImageConverterMainMenu & CALL :Convert_ICO "%argPath%" & GOTO :EndExecution
+:HandleFolderOption2
+    CALL :GetFolderInput "Convert Folder: Images to ICO (Rounded)" & IF NOT DEFINED argPath GOTO :ImageConverterMainMenu & CALL :Convert_ICO_Rounded "%argPath%" & GOTO :EndExecution
+:HandleFolderOption3
+    CALL :GetFolderInput "Convert Folder: Re-process ICOs to Standard" & IF NOT DEFINED argPath GOTO :ImageConverterMainMenu & CALL :Convert_Folder_ICO_Standard_Reprocess "%argPath%" & GOTO :EndExecution
+:HandleFolderOption4
+    CALL :GetFolderInput "Convert Folder: ICOs to PNG (Single)" & IF NOT DEFINED argPath GOTO :ImageConverterMainMenu & CALL :Convert_PNG_Single "%argPath%" & GOTO :EndExecution
+:HandleFolderOption5
+    CALL :GetFolderInput "Convert Folder: ICOs to PNG (All Sizes)" & IF NOT DEFINED argPath GOTO :ImageConverterMainMenu & CALL :Convert_PNG_AllSizes "%argPath%" & GOTO :EndExecution
+:HandleFolderOption6
+    CALL :GetFolderInput "Convert Folder: Extract from EXEs" & IF NOT DEFINED argPath GOTO :ImageConverterMainMenu & CALL :Convert_EXE_to_ICO "%argPath%" & GOTO :EndExecution
+:HandleFolderOptionP
+    CALL :GetFolderInput "Convert Folder: Images to PNG" & IF NOT DEFINED argPath GOTO :ImageConverterMainMenu & CALL :Convert_to_PNG "%argPath%" & GOTO :EndExecution
+:HandleFolderOptionJ
+    CALL :GetFolderInput "Convert Folder: Images to JPG" & IF NOT DEFINED argPath GOTO :ImageConverterMainMenu & CALL :Convert_to_JPG "%argPath%" & GOTO :EndExecution
+:HandleFolderOptionW
+    CALL :GetFolderInput "Convert Folder: Images to WebP" & IF NOT DEFINED argPath GOTO :ImageConverterMainMenu & CALL :Convert_to_WEBP "%argPath%" & GOTO :EndExecution
+
+:: =================================================================
+:: ==                  MAIN CONVERSION SCRIPTS                     ==
+:: =================================================================
+
+::-------------------------------------------------
+::-- SCRIPT 1: Convert Image to ICO
+::-------------------------------------------------
+:Convert_ICO
+SET "processPath=%~f1"
+CLS
+ECHO.
+ECHO   -------------------------------------------------------------
+ECHO                   [1] Convert Image to ICO
+ECHO   -------------------------------------------------------------
+ECHO.
+SET "lastOutputFile="
+
+IF EXIST "%processPath%\*" (
+    ECHO Processing directory: "%processPath%"
+    pushd "%processPath%"
+    if errorlevel 1 (
+        echo ERROR: Could not access directory.
+        goto ConvertIcoEnd
+    )
+    FOR /F "usebackq delims=" %%f IN (`dir /b /a-d "*.png" "*.bmp" "*.gif" "*.jpg" "*.jpeg" "*.svg" "*.webp" 2^>nul`) DO (
+        ECHO.
+        ECHO - Processing "%%f"...
+        SET "outputBase=%%~nf"
+        SET "outputFile=!outputBase!.ico"
+        IF EXIST "!outputFile!" (
+            CALL :FindNextAvailableFilename "!outputBase!" ".ico"
+            SET "outputFile=!foundFile!"
+        )
+        ECHO   Output file: "!outputFile!"
+        CALL "%MAGICK_EXE%" -quiet "%%f" -alpha on -trim +repage -background transparent -resize 256x256 -gravity center -extent 256x256 -filter Lanczos -strip -define icon:auto-resize=256,128,96,64,48,32,24,16 "!outputFile!"
+        SET "lastOutputFile=!outputFile!"
+    )
+    popd
+) ELSE (
+    ECHO Processing file: "%processPath%"
+    ECHO.
+    set "localProcessPath=%processPath%"
+    for %%A in ("!localProcessPath!") do (
+        ECHO - Processing "%%~nxA"...
+        SET "outputBase=%%~dpnA"
+    )
+    SET "outputFile=!outputBase!.ico"
+    IF EXIST "!outputFile!" (
+        CALL :FindNextAvailableFilename "!outputBase!" ".ico"
+        SET "outputFile=!foundFile!"
+    )
+    ECHO   Output file: "!outputFile!"
+    CALL "%MAGICK_EXE%" -quiet "!localProcessPath!" -alpha on -trim +repage -background transparent -resize 256x256 -gravity center -extent 256x256 -filter Lanczos -strip -define icon:auto-resize=256,128,96,64,48,32,24,16 "!outputFile!"
+    SET "lastOutputFile=!outputFile!"
+)
+:ConvertIcoEnd
+ECHO.
+ECHO   -------------------------------------------------------------
+ECHO   Conversion complete.
+ECHO   -------------------------------------------------------------
+GOTO :EOF
+
+
+::-------------------------------------------------
+::-- SCRIPT 1B: Re-process ICO to Standard ICO
+::-------------------------------------------------
+:Convert_ICO_Standard_Reprocess
+SET "processPath=%~f1"
+CLS
+ECHO.
+ECHO   -------------------------------------------------------------
+ECHO             [1B] Convert ICO to ICO (Standard)
+ECHO   -------------------------------------------------------------
+ECHO.
+ECHO Processing single file...
+ECHO.
+ECHO - Reprocessing "%~nx1"...
+CALL :GetLargestFrame "%~f1" "%TEMP%\%~n1"
+CALL :FindNextAvailableFilename "%~dpn1" ".ico"
+SET "finalName=!foundFile!"
+ECHO   Output file: "!finalName!"
+IF DEFINED largestFile (
+    IF EXIST "!largestFile!" (
+        CALL "%MAGICK_EXE%" -quiet "!largestFile!" -alpha on -background transparent -resize 256x256 -gravity center -extent 256x256 -filter Lanczos -strip -define icon:auto-resize=256,128,96,64,48,32,24,16 "!finalName!"
+    )
+)
+DEL /Q "%TEMP%\%~n1_temp*.png" 2>nul
+ECHO.
+ECHO   -------------------------------------------------------------
+ECHO   Conversion complete.
+ECHO   -------------------------------------------------------------
+GOTO :EOF
+
+::-------------------------------------------------
+::-- NEW SCRIPT: Re-process FOLDER of ICOs to Standard ICOs
+::-------------------------------------------------
+:Convert_Folder_ICO_Standard_Reprocess
+SET "processPath=%~f1"
+CLS
+ECHO.
+ECHO   -------------------------------------------------------------
+ECHO        [3] Re-process Entire Folder's ICOs to Standard
+ECHO   -------------------------------------------------------------
+ECHO.
+
+IF EXIST "%processPath%\*" (
+    ECHO Processing directory: "%processPath%"
+    pushd "%processPath%"
+    if errorlevel 1 (
+        echo ERROR: Could not access directory.
+        goto ConvertFolderReprocessEnd
+    )
+    FOR /F "usebackq delims=" %%f IN (`dir /b /a-d "*.ico" 2^>nul`) DO (
+        ECHO.
+        ECHO - Reprocessing "%%f"...
+        
+        REM Re-use the logic from the single-file version for each file
+        CALL :GetLargestFrame "%%~f" "%TEMP%\%%~nf"
+        CALL :FindNextAvailableFilename "%%~dpnf" ".ico"
+        
+        ECHO   Output file: "!foundFile!"
+        IF DEFINED largestFile (
+            IF EXIST "!largestFile!" (
+                CALL "%MAGICK_EXE%" -quiet "!largestFile!" -alpha on -background transparent -resize 256x256 -gravity center -extent 256x256 -filter Lanczos -strip -define icon:auto-resize=256,128,96,64,48,32,24,16 "!foundFile!"
+            )
+        )
+        DEL /Q "%TEMP%\%%~nf_temp*.png" 2>nul
+    )
+    popd
+) ELSE (
+    ECHO [ERROR] A valid folder was not provided.
+)
+:ConvertFolderReprocessEnd
+ECHO.
+ECHO   -------------------------------------------------------------
+ECHO   Re-processing complete.
+ECHO   -------------------------------------------------------------
+GOTO :EOF
+
+
+::-------------------------------------------------
+::-- SCRIPT 2: Convert to ICO (ROUNDED CORNERS)
+::-------------------------------------------------
+:Convert_ICO_Rounded
+SET "processPath=%~f1"
+CLS
+ECHO.
+ECHO   -------------------------------------------------------------
+ECHO              [2] Convert to ICO (Rounded Corners)
+ECHO   -------------------------------------------------------------
+ECHO.
+SET "lastOutputFile="
+
+IF EXIST "%processPath%\*" (
+    ECHO Processing directory: "%processPath%"
+    pushd "%processPath%"
+    if errorlevel 1 (
+        echo ERROR: Could not access directory.
+        goto ConvertRoundedEnd
+    )
+    FOR /F "usebackq delims=" %%f IN (`dir /b /a-d "*.ico" 2^>nul`) DO (
+        CALL :ProcessIcoRounded "%%~f"
+    )
+    FOR /F "usebackq delims=" %%f IN (`dir /b /a-d "*.png" "*.bmp" "*.gif" "*.jpg" "*.jpeg" "*.svg" "*.webp" 2^>nul`) DO (
+        CALL :ProcessImageRounded "%%~f"
+    )
+    popd
+) ELSE (
+    ECHO Processing single file...
+    for %%f in ("%processPath%") do set "fileExt=%%~xf"
+    IF /I "!fileExt!"==".ico" (
+        CALL :ProcessIcoRounded "%processPath%"
+    ) ELSE (
+        CALL :ProcessImageRounded "%processPath%"
+    )
+)
+:ConvertRoundedEnd
+ECHO.
+ECHO   -------------------------------------------------------------
+ECHO   Conversion complete.
+ECHO   -------------------------------------------------------------
+GOTO :EOF
+
+:ProcessImageRounded
+    SETLOCAL
+    SET "inputFile=%~f1"
+    ECHO.
+    ECHO - Processing "%~nx1"...
+    SET "outputBase=%~dpn1"
+    SET "outputFile=!outputBase!.ico"
+    IF EXIST "!outputFile!" (
+        CALL :FindNextAvailableFilename "!outputBase!" ".ico"
+        SET "outputFile=!foundFile!"
+    )
+    ECHO   Output file: "!outputFile!"
+    CALL :ExecuteRoundedConversion "!inputFile!" "!outputFile!"
+    ENDLOCAL & SET "lastOutputFile=%outputFile%"
+GOTO :EOF
+
+:ProcessIcoRounded
+    SETLOCAL
+    SET "inputFile=%~f1"
+    ECHO.
+    ECHO - Reprocessing "%~nx1"...
+    CALL :GetLargestFrame "%~f1" "%TEMP%\%~n1"
+    CALL :FindNextAvailableFilename "%~dpn1" ".ico"
+    SET "finalName=!foundFile!"
+    ECHO   Output file: "!finalName!"
+    IF DEFINED largestFile (
+        IF EXIST "!largestFile!" (
+            CALL :ExecuteRoundedConversion "!largestFile!" "!finalName!"
+        )
+    )
+    DEL /Q "%TEMP%\%~n1_temp*.png" 2>nul
+    ENDLOCAL & SET "lastOutputFile=%finalName%"
+GOTO :EOF
+
+:ExecuteRoundedConversion
+    SETLOCAL
+    SET "radius=25"
+    SET "localInput=%~1"
+    SET "localOutput=%~2"
+    SET "tempBat=%TEMP%\_magick_cmd_%RANDOM%.bat"
+    (
+        ECHO @"%MAGICK_EXE%" -quiet "!localInput!" -alpha on -trim +repage -background transparent -resize 256x256 -gravity center -extent 256x256 ^( +clone -alpha extract -draw "fill black polygon 0,0 0,%radius% %radius%,0 fill white circle %radius%,%radius% %radius%,0" ^( +clone -flip ^) -compose Multiply -composite ^( +clone -flop ^) -compose Multiply -composite ^) -alpha off -compose CopyOpacity -composite -filter Lanczos -strip -define icon:auto-resize=256,128,96,64,48,32,24,16 "!localOutput!"
+    ) > "!tempBat!"
+    
+    CALL "!tempBat!"
+    DEL "!tempBat!"
+    ENDLOCAL
+GOTO :EOF
+
+
+::-------------------------------------------------
+::-- SCRIPT 3: Convert ICO to PNG (Single, Best Quality)
+::-------------------------------------------------
+:Convert_PNG_Single
+SET "processPath=%~f1"
+CLS
+ECHO.
+ECHO   -------------------------------------------------------------
+ECHO          [4] Convert ICO to PNG (Highest Resolution)
+ECHO   -------------------------------------------------------------
+ECHO.
+SET successCount=0
+SET failCount=0
+SET "lastOutputFile="
+
+IF EXIST "%processPath%\*" (
+    ECHO Processing directory: "%processPath%"
+    pushd "%processPath%"
+    if errorlevel 1 (
+        echo ERROR: Could not access directory.
+        goto ConvertPngSingleEnd
+    )
+    FOR /F "usebackq delims=" %%f IN (`dir /b /a-d "*.ico" 2^>nul`) DO (
+        CALL :ProcessIcoToPngSingleFile "%%~f"
+    )
+    popd
+) ELSE IF EXIST "%processPath%" (
+    ECHO Processing single file...
+    CALL :ProcessIcoToPngSingleFile "%processPath%"
+) ELSE (
+    ECHO [ERROR] File or path not found: %processPath%
+)
+
+:ConvertPngSingleEnd
+ECHO.
+ECHO ============================================================
+ECHO Summary: !successCount! succeeded, !failCount! failed
+ECHO ============================================================
+GOTO :EOF
+
+
+::-------------------------------------------------
+::-- SCRIPT 4: Convert ICO to PNG (All Sizes, New Folder)
+::-------------------------------------------------
+:Convert_PNG_AllSizes
+SET "processPath=%~f1"
+CLS
+ECHO.
+ECHO   -------------------------------------------------------------
+ECHO             [5] Convert ICO to PNG (All Sizes)
+ECHO   -------------------------------------------------------------
+ECHO.
+SET successCount=0
+SET failCount=0
+SET "lastOutputFolder="
+
+IF EXIST "%processPath%\*" (
+    ECHO Processing directory: "%processPath%"
+    pushd "%processPath%"
+    if errorlevel 1 (
+        echo ERROR: Could not access directory.
+        goto ConvertPngAllEnd
+    )
+    FOR /F "usebackq delims=" %%f IN (`dir /b /a-d "*.ico" 2^>nul`) DO (
+        CALL :ProcessIcoToPngAllSizes "%%~f"
+    )
+    popd
+) ELSE IF EXIST "%processPath%" (
+    ECHO Processing single file...
+    CALL :ProcessIcoToPngAllSizes "%processPath%"
+) ELSE (
+    ECHO [ERROR] File or path not found: %processPath%
+)
+
+:ConvertPngAllEnd
+ECHO.
+ECHO ============================================================
+ECHO Summary: !successCount! succeeded, !failCount! failed
+ECHO ============================================================
+GOTO :EOF
+
+
+::-------------------------------------------------
+::-- SCRIPT 5: Extract Icon from EXE
+::-------------------------------------------------
+:Convert_EXE_to_ICO
+SET "processPath=%~f1"
+CLS
+ECHO.
+ECHO   -------------------------------------------------------------
+ECHO                  [6] Extract Icon from EXE
+ECHO   -------------------------------------------------------------
+ECHO.
+
+CALL :CheckForExtractionTools
+IF !ERRORLEVEL! NEQ 0 (
+    PAUSE
+    GOTO :EOF
+)
+
+SET successCount=0
+SET failCount=0
+SET "lastOutputFile="
+
+IF EXIST "%processPath%\*" (
+    ECHO Processing directory: "%processPath%"
+    pushd "%processPath%"
+    if errorlevel 1 (
+        echo ERROR: Could not access directory.
+        goto ConvertExeEnd
+    )
+    FOR /F "usebackq delims=" %%f IN (`dir /b /a-d "*.exe" 2^>nul`) DO (
+        CALL :ProcessSingleExe "%%~f"
+    )
+    popd
+) ELSE IF EXIST "%processPath%" (
+    ECHO Processing single file...
+    CALL :ProcessSingleExe "%processPath%"
+) ELSE (
+    ECHO [ERROR] File or path not found: %processPath%
+)
+
+:ConvertExeEnd
+ECHO.
+ECHO ============================================================
+ECHO Summary: !successCount! succeeded, !failCount! failed
+ECHO ============================================================
+GOTO :EOF
+
+::-------------------------------------------------
+::-- NEW: Generic Image Converters
+::-------------------------------------------------
+:Convert_to_PNG
+    CALL :Convert_Generic "%~1" "png"
+GOTO :EOF
+
+:Convert_to_JPG
+    CALL :Convert_Generic "%~1" "jpg"
+GOTO :EOF
+
+:Convert_to_WEBP
+    CALL :Convert_Generic "%~1" "webp"
+GOTO :EOF
+
+:Convert_Generic
+SET "processPath=%~f1"
+SET "targetExt=%~2"
+CLS
+ECHO.
+ECHO   -------------------------------------------------------------
+ECHO            Converting file(s) to %targetExt%
+ECHO   -------------------------------------------------------------
+ECHO.
+
+IF EXIST "%processPath%\*" (
+    ECHO Processing directory: "%processPath%"
+    pushd "%processPath%"
+    if errorlevel 1 ( echo ERROR: Could not access directory. & goto GenericConvertEnd )
+    
+    FOR /F "usebackq delims=" %%f IN (`dir /b /a-d "*.png" "*.bmp" "*.gif" "*.jpg" "*.jpeg" "*.svg" "*.ico" "*.webp" 2^>nul`) DO (
+        if /I "%%~xf" NEQ ".%targetExt%" (
+            ECHO.
+            ECHO - Processing "%%f"...
+            SET "outputBase=%%~nf"
+            CALL :FindNextAvailableFilename "!outputBase!" ".%targetExt%"
+            ECHO   Output file: "!foundFile!"
+            CALL "%MAGICK_EXE%" -quiet "%%f" "!foundFile!"
+        )
+    )
+    popd
+) ELSE (
+    ECHO Processing file: "%processPath%"
+    ECHO.
+    set "localProcessPath=%processPath%"
+    for %%A in ("!localProcessPath!") do (
+        ECHO - Processing "%%~nxA"...
+        SET "outputBase=%%~dpnA"
+    )
+    CALL :FindNextAvailableFilename "!outputBase!" ".%targetExt%"
+    ECHO   Output file: "!foundFile!"
+    CALL "%MAGICK_EXE%" -quiet "!localProcessPath!" "!foundFile!"
+)
+:GenericConvertEnd
+ECHO.
+ECHO   -------------------------------------------------------------
+ECHO   Conversion complete.
+ECHO   -------------------------------------------------------------
+GOTO :EOF
+
+:: =================================================================
+:: ==                      HELPER SUBROUTINES                      ==
+:: =================================================================
+
+:GetUserInput
+SET "argPath="
+CLS
+ECHO.
+ECHO   -------------------------------------------------------------
+ECHO   %~1
+ECHO   -------------------------------------------------------------
+ECHO.
+ECHO   Select an input method:
+ECHO.
+ECHO     [1] Browse for a file
+ECHO     [2] Paste file path manually
+ECHO.
+ECHO   ------------------------------------------------------------------------
+ECHO     [M] Return to Previous Menu
+ECHO     [E] Exit
+ECHO   ========================================================================
+ECHO.
+CHOICE /C 12ME /N /M "Enter your choice: "
+
+IF ERRORLEVEL 4 call :Cleanup & exit
+IF ERRORLEVEL 3 GOTO :EOF
+IF ERRORLEVEL 2 GOTO :paste_path_manual
+IF ERRORLEVEL 1 GOTO :browse_for_file
+GOTO :EOF
+
+:browse_for_file
+ECHO.
+ECHO Opening file browser...
+
+REM Escape current directory for PowerShell
+set "currentDir=%CD%"
+call :EscapeForPowerShell "%currentDir%" escapedDir
+
+for /f "delims=" %%i in ('powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -command "Add-Type -AssemblyName System.Windows.Forms; $f=New-Object System.Windows.Forms.OpenFileDialog; $f.Filter='All Supported Files|*.exe;*.png;*.bmp;*.gif;*.jpg;*.jpeg;*.svg;*.ico;*.webp|All Files|*.*'; $f.InitialDirectory='!escapedDir!'; $f.Title='Select File'; if($f.ShowDialog() -eq 'OK'){$f.FileName}"') do set "argPath=%%i"
+GOTO :EOF
+
+:paste_path_manual
+ECHO.
+setlocal enabledelayedexpansion
+set /p "inputPath=Enter the full path to your file and press Enter: "
+
+REM Remove all quotes
+set "cleanPath=!inputPath!"
+set cleanPath=!cleanPath:"=!
+
+REM Trim any leading/trailing spaces
+for /f "tokens=* delims= " %%a in ("!cleanPath!") do set "cleanPath=%%a"
+
+endlocal & set "argPath=%cleanPath%"
+GOTO :EOF
+
+:GetFolderInput
+SET "argPath="
+CLS
+ECHO.
+ECHO   -------------------------------------------------------------
+ECHO   %~1
+ECHO   -------------------------------------------------------------
+ECHO.
+ECHO   Select an input method:
+ECHO.
+ECHO     [1] Browse for a folder
+ECHO     [2] Paste folder path manually
+ECHO.
+ECHO   ------------------------------------------------------------------------
+ECHO     [M] Return to Previous Menu
+ECHO     [E] Exit
+ECHO   ========================================================================
+ECHO.
+CHOICE /C 12ME /N /M "Enter your choice: "
+
+IF ERRORLEVEL 4 call :Cleanup & exit
+IF ERRORLEVEL 3 GOTO :EOF
+IF ERRORLEVEL 2 GOTO :paste_folder_path
+IF ERRORLEVEL 1 GOTO :browse_for_folder
+GOTO :EOF
+
+:browse_for_folder
+ECHO.
+ECHO Opening folder browser...
+
+REM Escape current directory for PowerShell
+set "currentDir=%CD%"
+call :EscapeForPowerShell "%currentDir%" escapedDir
+
+set "psCommand=Add-Type -AssemblyName System.Windows.Forms; $f=New-Object System.Windows.Forms.OpenFileDialog; $f.Title='Select a folder by navigating into it and clicking Open'; $f.ValidateNames=$false; $f.CheckFileExists=$false; $f.CheckPathExists=$true; $f.InitialDirectory='!escapedDir!'; $f.FileName='Select This Folder'; if($f.ShowDialog() -eq 'OK'){ [System.IO.Path]::GetDirectoryName($f.FileName) }"
+
+for /f "usebackq delims=" %%F in (`powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "!psCommand!"`) do (
+    set "argPath=%%F"
+)
+GOTO :EOF
+
+:paste_folder_path
+ECHO.
+setlocal enabledelayedexpansion
+set /p "inputPath=Enter the full path to your folder and press Enter: "
+
+REM Remove all quotes
+set "cleanPath=!inputPath!"
+set cleanPath=!cleanPath:"=!
+
+REM Trim any leading/trailing spaces
+for /f "tokens=* delims= " %%a in ("!cleanPath!") do set "cleanPath=%%a"
+
+endlocal & set "argPath=%cleanPath%"
+GOTO :EOF
+
+
+:ProcessIcoToPngSingleFile
+SETLOCAL
+SET "inputFile=%~f1"
+SET "outputBase=%~dpn1"
+SET "outputFile=%outputBase%.png"
+
+ECHO -----------------------------------------------------------
+ECHO Processing: %~nx1
+
+IF EXIST "!outputFile!" (
+    CALL :FindNextAvailableFilename "!outputBase!" ".png"
+    SET "outputFile=!foundFile!"
+)
+ECHO Output file: !outputFile!
+
+CALL "%MAGICK_EXE%" "!inputFile![0]" -alpha on "!outputFile!" >nul 2>&1
+IF EXIST "!outputFile!" (
+    ECHO [SUCCESS] Conversion successful
+    SET /A successCount+=1
+) ELSE (
+    ECHO [FAILED] Conversion failed for: %~n1%~x1
+    SET /A failCount+=1
+)
+ENDLOCAL & SET successCount=%successCount%& SET failCount=%failCount%
+GOTO :EOF
+
+
+:ProcessIcoToPngAllSizes
+SETLOCAL
+SET "inputFile=%~f1"
+SET "fileName=%~n1"
+SET "outputFolderBase=%~dpn1"
+SET "outputFolder=%outputFolderBase%"
+
+ECHO -----------------------------------------------------------
+ECHO Processing: %fileName%%~x1
+
+IF EXIST "%outputFolder%\" (
+    CALL :FindNextAvailableFolderName "%outputFolderBase%"
+    SET "outputFolder=!foundFolder!"
+)
+
+ECHO Creating folder: !outputFolder!
+MKDIR "!outputFolder!" 2>nul
+IF !ERRORLEVEL! NEQ 0 (
+    ECHO [ERROR] Failed to create folder
+    SET /A failCount+=1
+    GOTO :ProcessAllEnd
+)
+
+SET "outputFile=!outputFolder!\%fileName%.png"
+ECHO Output: %outputFile% (and others)
+
+CALL "%MAGICK_EXE%" "!inputFile!" -alpha on "!outputFile!" >nul 2>&1
+IF !ERRORLEVEL! EQU 0 (
+    ECHO [SUCCESS] Conversion successful
+    SET /A successCount+=1
+) ELSE (
+    ECHO Trying fallback methods...
+    CALL "%MAGICK_EXE%" "!inputFile!" -flatten -alpha on "!outputFile!" >nul 2>&1
+    IF !ERRORLEVEL! EQU 0 (
+         ECHO [SUCCESS] Conversion successful with method 2
+         SET /A successCount+=1
+    ) ELSE (
+        ECHO [FAILED] All conversion methods failed for: %fileName%%~x1
+        SET /A failCount+=1
+    )
+)
+
+:ProcessAllEnd
+ENDLOCAL & SET successCount=%successCount%& SET failCount=%failCount%
+GOTO :EOF
+
+
+:ProcessSingleExe
+SETLOCAL
+SET "target=%~f1"
+SET "outputBase=%~dpn1"
+SET "success=0"
+
+ECHO -----------------------------------------------------------
+ECHO Processing: %~nx1
+
+:: --- Setup output and temp files ---
+SET "outfile=!outputBase!.ico"
+IF EXIST "!outfile!" (
+    CALL :FindNextAvailableFilename "!outputBase!" ".ico"
+    SET "outfile=!foundFile!"
+)
+SET "tempdir=%TEMP%\ico_extract_%RANDOM%%RANDOM%"
+mkdir "!tempdir!" 2>nul
+ECHO   Output: !outfile!
+
+:: --- METHOD 1: IconsExtract (Best for preserving original quality) ---
+if !success! equ 0 if defined IE_EXE (
+    ECHO [Method 1] IconsExtract - Extracting...
+    "!IE_EXE!" /save "!target!" "!tempdir!" -icons >nul 2>nul
+    
+    set "besticon="
+    set "bestsize=0"
+    
+    for %%F in ("!tempdir!\*.ico") do (
+        set "fname=%%~nxF"
+        echo !fname! | findstr /r "_[0-9][0-9]*x[0-9][0-9]*_" >nul
+        if errorlevel 1 (
+            set "besticon=%%F"
+            goto :copy_best_icon
+        )
+    )
+    
+    for %%F in ("!tempdir!\*.ico") do (
+        set "besticon=%%F"
+        goto :copy_best_icon
+    )
+    
+    :copy_best_icon
+    if defined besticon (
+        copy /y "!besticon!" "!outfile!" >nul 2>&1
+        if exist "!outfile!" (
+            ECHO   [SUCCESS] Copied to output
+            set "success=1"
+        )
+    ) else (
+        ECHO   ...No icons extracted by IconsExtract
+    )
+)
+
+:: --- METHOD 2: ResourceHacker - Try common indices ---
+if !success! equ 0 if defined RH_EXE (
+    ECHO [Method 2] ResourceHacker - Trying common indices...
+    for %%I in (1 32512 32513 MAINICON 101 102 103 104 105) do (
+        if !success! equ 0 (
+            ECHO   Trying: %%I
+            "!RH_EXE!" -open "!target!" -save "!outfile!" -action extract -mask ICONGROUP,%%I, -log NUL
+            if exist "!outfile!" (
+                ECHO   [SUCCESS] Found at index %%I
+                set "success=1"
+            )
+        )
+    )
+)
+
+:: --- METHOD 3: ImageMagick - Direct extraction ---
+if !success! equ 0 if defined MAGICK_EXE (
+    ECHO [Method 3] ImageMagick - Extracting...
+    "!MAGICK_EXE%" "!target!" "!tempdir!\extracted.ico" 2>nul
+    if exist "!tempdir!\extracted.ico" (
+        copy /y "!tempdir!\extracted.ico" "!outfile!" >nul 2>&1
+        if exist "!outfile!" (
+            ECHO   [SUCCESS] Extracted with ImageMagick
+            set "success=1"
+        )
+    )
+    if !success! equ 0 (
+        for /l %%I in (0,1,5) do (
+             if !success! equ 0 (
+                "!MAGICK_EXE%" "!target![%%I]" "!outfile!" 2>nul
+                if exist "!outfile!" (
+                    ECHO   [SUCCESS] Found at index %%I
+                    set "success=1"
+                )
+            )
+        )
+    )
+)
+
+:: --- METHOD 4: ResourceHacker - Deep scan ---
+if !success! equ 0 if defined RH_EXE (
+    ECHO [Method 4] ResourceHacker - Deep scan...
+    for /l %%I in (1,1,50000) do (
+        if !success! equ 0 (
+            "!RH_EXE!" -open "!target!" -save "!outfile!" -action extract -mask ICONGROUP,%%I, -log NUL 2>nul
+            if exist "!outfile!" (
+                ECHO   [SUCCESS] Found at index %%I
+                set "success=1"
+            )
+        )
+    )
+)
+
+:: --- Cleanup and Results ---
+if exist "!tempdir!" (
+    rd /s /q "!tempdir!" 2>nul
+)
+
+IF !success! equ 1 (
+    SET /A successCount+=1
+) ELSE (
+    ECHO   [FAILED] Could not extract an icon from this file.
+    SET /A failCount+=1
+)
+ENDLOCAL & SET successCount=%successCount%& SET failCount=%failCount%
+GOTO :EOF
+
+
+:GetLargestFrame
+SET "inputFile=%~f1"
+SET "baseName=%~2"
+CALL "%MAGICK_EXE%" "%inputFile%" -alpha on "%baseName%_temp.png" >nul 2>&1
+SET "largestFile="
+SET "largestSize=0"
+IF EXIST "%baseName%_temp.png" (
+    FOR %%p IN ("%baseName%_temp.png") DO (
+        SET "currentSize=%%~zp"
+        IF !currentSize! GTR !largestSize! (
+            SET "largestSize=!currentSize!"
+            SET "largestFile=%%~fp"
+        )
+    )
+)
+FOR %%p IN ("%baseName%_temp-*.png") DO (
+    SET "currentSize=%%~zp"
+    IF !currentSize! GTR !largestSize! (
+        SET "largestSize=!currentSize!"
+        SET "largestFile=%%~fp"
+    )
+)
+GOTO :EOF
+
+
+:CheckForExtractionTools
+ECHO Searching for required tools...
+SET "RH_EXE="
+SET "IE_EXE="
+
+if exist "%resourcesPath%ResourceHacker.exe" SET "RH_EXE=%resourcesPath%ResourceHacker.exe"
+if exist "%resourcesPath%IconsExtract.exe"   SET "IE_EXE=%resourcesPath%IconsExtract.exe"
+
+if "!RH_EXE!"=="" (where ResourceHacker.exe >nul 2>&1 && SET "RH_EXE=ResourceHacker.exe")
+if "!IE_EXE!"=="" (where IconsExtract.exe >nul 2>&1 && SET "IE_EXE=IconsExtract.exe")
+
+IF NOT "!RH_EXE!"=="" (ECHO   [+] Found ResourceHacker: !RH_EXE!) ELSE (ECHO   [!] ResourceHacker not found)
+IF NOT "!IE_EXE!"=="" (ECHO   [+] Found IconsExtract: !IE_EXE!) ELSE (ECHO   [!] IconsExtract not found)
+IF NOT "!MAGICK_EXE!"=="" (ECHO   [+] Found ImageMagick: !MAGICK_EXE!) ELSE (ECHO   [!] ImageMagick not found)
+ECHO.
+
+SET "toolsFound=0"
+IF NOT "!RH_EXE!"=="" SET "toolsFound=1"
+IF NOT "!IE_EXE!"=="" SET "toolsFound=1"
+IF NOT "!MAGICK_EXE!"=="" SET "toolsFound=1"
+
+IF "!toolsFound!"=="0" (
+    ECHO -----------------------------------------------------------
+    ECHO [FATAL ERROR] No extraction tools found!
+    ECHO -----------------------------------------------------------
+    ECHO.
+    ECHO This function requires at least one of the following:
+    ECHO   - ResourceHacker.exe, IconsExtract.exe, magick.exe
+    ECHO.
+    ECHO Place the required tools in the 'resources' subfolder.
+    ECHO.
+    EXIT /B 1
+)
+EXIT /B 0
+
+
+:FindNextAvailableFilename
+SET "baseName=%~1"
+SET "extension=%~2"
+SET "counter=2"
+:checkFileLoop
+SET "checkFile=%baseName%_%counter%%extension%"
+IF EXIST "%checkFile%" (
+    SET /A counter+=1
+    GOTO :checkFileLoop
+)
+SET "foundFile=%checkFile%"
+GOTO :EOF
+
+
+:FindNextAvailableFolderName
+SET "baseName=%~1"
+SET "counter=2"
+:checkFolderLoop
+SET "checkFolder=%baseName%_%counter%"
+IF EXIST "%checkFolder%\" (
+    SET /A counter+=1
+    GOTO :checkFolderLoop
+)
+SET "foundFolder=%checkFolder%"
+GOTO :EOF
+
+
+:: =================================================================
+:: ==             END OF IMAGE CONVERTER PRO SECTION               ==
+:: =================================================================
+:EndExecution
+ECHO.
+ECHO   ========================================================================
+ECHO     [M] Return to Main Menu
+ECHO     [E] Exit
+ECHO   ========================================================================
+ECHO.
+CHOICE /C ME /N /M "Select your choice: "
+IF ERRORLEVEL 2 call :Cleanup & exit
+IF ERRORLEVEL 1 GOTO :MainMenu
+GOTO :MainMenu
+
+:: ### NEW SUBROUTINE for handling end-of-operation choices ###
+:EndExecutionMenu
+ECHO.
+ECHO   ========================================================================
+ECHO                          Operation Complete
+ECHO   ========================================================================
+ECHO.
+ECHO     [M] Return to Main Menu
+ECHO     [E] Exit
+ECHO.
+CHOICE /C ME /N /M "  Select your choice: "
+IF ERRORLEVEL 2 ( call :Cleanup & call :DebugLog "User chose to exit." & exit )
+IF ERRORLEVEL 1 GOTO :MainMenu
+GOTO :MainMenu
+
+:FolderOperationCompleteMenu
+setlocal
+set "processedFolder=%~1"
+:MenuLoop
+ECHO.
+ECHO   ========================================================================
+ECHO                          Operation Complete
+ECHO   ========================================================================
+ECHO.
+ECHO     [I] Choose a Different Icon for this Folder
+ECHO     [M] Return to Main Menu
+ECHO     [E] Exit
+ECHO.
+CHOICE /C IME /N /M "  Select your choice: "
+if errorlevel 3 ( call :Cleanup & call :DebugLog "User chose to exit from complete menu." & endlocal & exit )
+if errorlevel 2 ( endlocal & goto :MainMenu )
+if errorlevel 1 (
+    call :OfferFolderActions "%processedFolder%"
+    goto :MenuLoop
+)
+endlocal
+goto :eof
+
+REM ============================================================================
+REM ============================================================================
+REM ==                   UTILITY FUNCTIONS SECTION                            ==
+REM ============================================================================
+REM ============================================================================
+
+:ValidateResources
+    REM Check and report on critical dependencies
+    set "missingTools="
+    set "warningIssued=0"
+    
+    if not exist "%IconUpdaterPath%" (
+        set "missingTools=!missingTools! FolderIconUpdater.exe"
+        set "warningIssued=1"
+    )
+    
+    if not exist "%resourcesPath%magick.exe" (
+        set "missingTools=!missingTools! magick.exe"
+        set "warningIssued=1"
+    )
+    
+    if "%warningIssued%"=="1" (
+        call :DebugLog "WARNING: Missing tools:%missingTools%"
+        call :DebugLog "Some features will be unavailable."
+    ) else (
+        call :DebugLog "All critical resources validated successfully."
+    )
+goto :eof
+
+:SanitizePath
+    REM Remove quotes and trim spaces from path
+    setlocal enabledelayedexpansion
+    set "inputPath=%~1"
+    set "inputPath=!inputPath:"=!"
+    
+    REM Trim leading spaces
+    for /f "tokens=* delims= " %%a in ("!inputPath!") do set "inputPath=%%a"
+    
+    REM Trim trailing spaces
+    :trimTrailing
+    if "!inputPath:~-1!"==" " (
+        set "inputPath=!inputPath:~0,-1!"
+        goto :trimTrailing
+    )
+    
+    endlocal & set "%~2=%inputPath%"
+goto :eof
+
+:EscapeForPowerShell
+    REM Escape path for safe use in PowerShell commands
+    setlocal enabledelayedexpansion
+    set "inputPath=%~1"
+    
+    REM Replace backslashes with double backslashes
+    set "inputPath=!inputPath:\=\\!"
+    
+    REM Escape single quotes
+    set "inputPath=!inputPath:'=''!"
+    
+    REM Escape dollar signs
+    set "inputPath=!inputPath:$=`$!"
+    
+    endlocal & set "%~2=%inputPath%"
+goto :eof
+
+:Cleanup
+    REM Clean up temporary files
+    call :DebugLog "Cleaning up temporary files..."
+    
+    if exist "%TEMP%\foldericon_*.txt" del /q "%TEMP%\foldericon_*.txt" 2>nul
+    if exist "%TEMP%\ico_extract_*" rd /s /q "%TEMP%\ico_extract_*" 2>nul
+    
+    REM Clean up any orphaned temp PNG files
+    if exist "%TEMP%\*_temp*.png" del /q "%TEMP%\*_temp*.png" 2>nul
+
+    REM Clean up any orphaned temp bat files
+    if exist "%TEMP%\_magick_cmd_*.bat" del /q "%TEMP%\_magick_cmd_*.bat" 2>nul
+    
+    call :DebugLog "Cleanup completed."
+goto :eof
+
+:DebugLog
+    REM Safely log to file, handling special characters
+    setlocal enabledelayedexpansion
+    set "logMessage=%~1"
+    set "logMessage=!logMessage:<=^<!"
+    set "logMessage=!logMessage:>=^>!"
+    set "logMessage=!logMessage:&=^&!"
+    set "logMessage=!logMessage:|=^|!"
+    echo %date% @ %time% - !logMessage! >> "%debugLogFile%"
+    endlocal
+goto :eof
+
+
+REM ============================================================================
+REM ============================================================================
+REM ==                   CONTEXT MENU INSTALLATION SECTION                    ==
+REM ============================================================================
+REM ============================================================================
+
+:InstallContextMenu
+    cls
+    echo.
+    echo ======================================================
+    echo  Install Context Menu Integration
+    echo ======================================================
+    echo.
+    
+    REM Check if running as administrator
+    net session >nul 2>&1
+    if %errorlevel% neq 0 (
+        echo ERROR: Administrator privileges required!
+        echo.
+        echo Please right-click this script and select
+        echo "Run as administrator" to install the context menu.
+        echo.
+        timeout /t 3 >nul
+        goto :MainMenu
+    )
+    
+    call :DebugLog "Installing to Program Files with context menu integration..."
+    echo Installing to: %INSTALL_DIR%
+    echo.
+    
+    REM Create installation directory
+    echo Creating installation directory...
+    if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%" 2>nul
+    if not exist "%INSTALL_RESOURCES%" mkdir "%INSTALL_RESOURCES%" 2>nul
+    
+    if not exist "%INSTALL_DIR%" (
+        echo ERROR: Failed to create installation directory.
+        echo.
+        pause
+        goto :MainMenu
+    )
+    
+    REM ### MODIFIED SECTION START ###
+    echo Copying script files...
+    if "%ExeMode%"=="1" (
+        REM Installer mode: copy the main tool from the 'resources' subfolder
+        call :DebugLog "ExeMode=1: Looking for resources\IconWizard.bat to copy."
+        set "sourceBat=%b2eincfilepath%\IconWizard.bat"
+        
+        if not exist "!sourceBat!" (
+            cls
+            echo.
+            echo   [FATAL ERROR]
+            echo   'IconWizard.bat' not found in the 'resources' folder.
+            echo.
+            echo   When ExeMode is set to 1, this script acts as an installer
+            echo   and requires 'IconWizard.bat' to be present in the
+            echo   'resources' sub-folder.
+            echo.
+            pause
+            goto :MainMenu
+        )
+        
+        echo   Copying 'IconWizard.bat' from resources to Program Files...
+        copy /Y "!sourceBat!" "%INSTALL_DIR%\IconWizard.bat" >nul 2>nul
+    ) else (
+        REM Standalone mode: copy the running script itself
+        call :DebugLog "ExeMode=0: Copying self to Program Files."
+        echo   Copying current script to Program Files...
+        copy /Y "%~f0" "%INSTALL_DIR%\IconWizard.bat" >nul 2>nul
+    )
+
+    if errorlevel 1 (
+        echo ERROR: Failed to copy the main script file.
+        echo.
+        pause
+        goto :MainMenu
+    )
+    REM ### MODIFIED SECTION END ###
+
+    REM Copy all resources
+    echo Copying resource files...
+    set "copyErrors=0"
+    
+    if exist "%resourcesPath%." (
+        REM Copy all files AND folders from the local resources to the install resources
+        xcopy "%resourcesPath%." "%INSTALL_RESOURCES%\" /E /Y /I /Q >nul 2>nul
+        if errorlevel 1 set "copyErrors=1"
+    )
+
+    if "%copyErrors%"=="1" (
+        echo.
+        echo WARNING: Some files may not have copied correctly.
+        echo The installation will continue, but some features may not work.
+        echo.
+    )
+    
+    set "scriptPath=%INSTALL_DIR%\IconWizard.bat"
+    set "sourceIconPath=%INSTALL_RESOURCES%\icon.ico"
+    
+    REM Check if icon file exists for context menu
+    if exist "%sourceIconPath%" (
+        set "iconForMenu=%sourceIconPath%"
+        call :DebugLog "Icon found for context menu: %sourceIconPath%"
+    ) else (
+        echo WARNING: Icon file not found. Context menu will be installed without an icon.
+        set "iconForMenu="
+        call :DebugLog "Icon file not found, installing without icon."
+    )
+    
+    echo.
+    echo Creating registry entries for context menu...
+    
+    REM --- Create registry entries for FOLDER context menu ---
+    reg add "HKEY_CLASSES_ROOT\Directory\shell\SetFolderIcon" /ve /d "Change Folder &Icon" /f >nul 2>nul
+    if defined iconForMenu (
+        reg add "HKEY_CLASSES_ROOT\Directory\shell\SetFolderIcon" /v "Icon" /d "%iconForMenu%" /f >nul 2>nul
+    )
+    reg add "HKEY_CLASSES_ROOT\Directory\shell\SetFolderIcon\command" /ve /d "\"%scriptPath%\" \"%%1\"" /f >nul 2>nul
+    
+    REM Also add to directory background (when right-clicking inside a folder)
+    reg add "HKEY_CLASSES_ROOT\Directory\Background\shell\SetFolderIcon" /ve /d "Change Folder &Icon" /f >nul 2>nul
+    if defined iconForMenu (
+        reg add "HKEY_CLASSES_ROOT\Directory\Background\shell\SetFolderIcon" /v "Icon" /d "%iconForMenu%" /f >nul 2>nul
+    )
+    reg add "HKEY_CLASSES_ROOT\Directory\Background\shell\SetFolderIcon\command" /ve /d "\"%scriptPath%\" \"%%V\"" /f >nul 2>nul
+    
+    REM --- Create registry entries for FILE context menus (Image Converter) ---
+    for %%E in (png jpg jpeg bmp gif svg ico exe webp) do (
+        set "regKey=SystemFileAssociations\.%%E"
+        if /i "%%E"=="exe" set "regKey=exefile"
+
+        reg add "HKEY_CLASSES_ROOT\!regKey!\shell\ConvertImageConverter" /ve /d "&Icon File Converter" /f >nul 2>nul
+        if defined iconForMenu ( reg add "HKEY_CLASSES_ROOT\!regKey!\shell\ConvertImageConverter" /v "Icon" /d "%iconForMenu%" /f >nul 2>nul )
+        reg add "HKEY_CLASSES_ROOT\!regKey!\shell\ConvertImageConverter\command" /ve /d "\"%scriptPath%\" \"%%1\"" /f >nul 2>nul
+    )
+    
+    if errorlevel 1 (
+        echo.
+        echo ERROR: Failed to install context menu.
+        echo Please ensure you have administrator privileges.
+        call :DebugLog "Context menu installation FAILED."
+    ) else (
+        echo.
+        echo ======================================================
+        echo  SUCCESS! Installation completed.
+        echo ======================================================
+        echo.
+        echo Installation location:
+        echo %INSTALL_DIR%
+        echo.
+        echo You can now right-click any folder or supported
+        echo file to access the Icon Wizard functions.
+        echo.
+        echo The original files can be safely deleted.
+        echo.
+        call :DebugLog "Installation and context menu setup completed successfully."
+    )
+    
+    echo.
+    pause
+    goto :MainMenu
+
+:UninstallContextMenu
+    cls
+    echo.
+    echo ======================================================
+    echo  Uninstall Context Menu Integration
+    echo ======================================================
+    echo.
+    echo This will remove ALL context menu entries and delete
+    echo the installation from Program Files.
+    echo.
+    echo NOTE: This requires Administrator privileges.
+    echo.
+    CHOICE /M "Are you sure you want to continue?"
+    IF ERRORLEVEL 2 GOTO :MainMenu
+    echo.
+    
+    REM Check if running as administrator
+    net session >nul 2>&1
+    if %errorlevel% neq 0 (
+        echo ERROR: Administrator privileges required!
+        echo.
+        echo Please right-click this script and select
+        echo "Run as administrator" to uninstall the context menu.
+        echo.
+        pause
+        goto :MainMenu
+    )
+    
+    call :DebugLog "Uninstalling context menu integration and removing installation..."
+    echo Uninstalling...
+    echo.
+    
+    echo Removing registry entries...
+    
+    REM --- Remove registry entries for FOLDERS ---
+    reg delete "HKEY_CLASSES_ROOT\Directory\shell\SetFolderIcon" /f >nul 2>nul
+    reg delete "HKEY_CLASSES_ROOT\Directory\Background\shell\SetFolderIcon" /f >nul 2>nul
+    
+    REM --- Remove registry entries for FILES ---
+    for %%E in (png jpg jpeg bmp gif svg ico exe webp) do (
+        set "regKey=SystemFileAssociations\.%%E"
+        if /i "%%E"=="exe" set "regKey=exefile"
+        reg delete "HKEY_CLASSES_ROOT\!regKey!\shell\ConvertImageConverter" /f >nul 2>nul
+    )
+    reg delete "HKEY_CLASSES_ROOT\dllfile\shell\ConvertImageConverter" /f >nul 2>nul
+    
+    REM Remove installation directory if it exists
+    if exist "%INSTALL_DIR%" (
+        echo Removing installation directory...
+        rd /s /q "%INSTALL_DIR%" 2>nul
+        
+        if exist "%INSTALL_DIR%" (
+            echo WARNING: Could not completely remove installation directory.
+            echo You may need to delete it manually: %INSTALL_DIR%
+            call :DebugLog "Failed to delete installation directory."
+        ) else (
+            echo Installation directory removed successfully.
+            call :DebugLog "Installation directory deleted successfully."
+        )
+    )
+    
+    echo.
+    echo ======================================================
+    echo  SUCCESS! Uninstallation completed.
+    echo ======================================================
+    echo.
+    echo All context menu entries have been removed.
+    echo.
+    call :DebugLog "Context menu uninstallation completed successfully."
+    
+    echo.
+    pause
+    goto :MainMenu
+
+
+REM ============================================================================
+REM ============================================================================
+REM ==            BATCH ICON CHANGER + FIX BROKEN ICONS (v2.0)              ==
+REM ============================================================================
+REM ============================================================================
+
+:PickFolder
+    REM %~1 = title. Result is returned in variable pickedFolder (empty = cancelled/back)
+    set "pickedFolder="
+    cls
+    echo.
+    echo  ========================================================================
+    echo    %~1
+    echo  ========================================================================
+    echo.
+    echo    Which folder?
+    echo.
+    echo    [1]  Browse for a folder
+    echo    [2]  Paste a folder path
+    echo    [3]  Use the current directory:
+    for %%X in ("%CD%") do echo         %%~X
+    echo.
+    echo    [M]  Back
+    echo    [E]  Exit
+    echo.
+    choice /C:123ME /N /M "  Select your choice: "
+    if errorlevel 5 goto :QuitNow
+    if errorlevel 4 goto :eof
+    if errorlevel 3 goto :PickFolder_Cwd
+    if errorlevel 2 goto :PickFolder_Paste
+    goto :PickFolder_Browse
+
+:PickFolder_Cwd
+    set "pickedFolder=%CD%"
+goto :eof
+
+:PickFolder_Browse
+    echo.
+    echo  ...Opening folder browser...
+    set "IW_INIT=%CD%"
+    set "IW_OUT=%TEMP%\foldericon_pick_%RANDOM%.txt"
+    del "%IW_OUT%" 2>nul
+    powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "Add-Type -AssemblyName System.Windows.Forms; $f=New-Object System.Windows.Forms.OpenFileDialog; $f.Title='Open the folder you want, then click Open'; $f.ValidateNames=$false; $f.CheckFileExists=$false; $f.CheckPathExists=$true; $f.InitialDirectory=$env:IW_INIT; $f.FileName='Select This Folder'; if($f.ShowDialog() -eq 'OK'){ [IO.File]::WriteAllText($env:IW_OUT,[IO.Path]::GetDirectoryName($f.FileName),(New-Object Text.UTF8Encoding $false)) }"
+    if exist "%IW_OUT%" set /p "pickedFolder="<"%IW_OUT%"
+    del "%IW_OUT%" 2>nul
+    if not defined pickedFolder (
+        echo  ...No folder selected.
+        timeout /t 1 /nobreak >nul
+    )
+goto :eof
+
+:PickFolder_Paste
+    echo.
+    set "pasted="
+    set /p "pasted=  Paste folder path and press Enter (empty = cancel): "
+    if not defined pasted goto :eof
+    set "pasted=%pasted:"=%"
+    for /f "tokens=* delims= " %%a in ("%pasted%") do set "pasted=%%a"
+    if not exist "%pasted%\" (
+        echo.
+        echo  ...ERROR: That is not a valid folder.
+        pause
+        goto :eof
+    )
+    for %%A in ("%pasted%\.") do set "pickedFolder=%%~fA"
+goto :eof
+
+:PickIconFile
+    REM %~1 = folder to start browsing in. Result in variable pickedIcon (empty = cancelled)
+    set "pickedIcon="
+    set "IW_INIT=%~1"
+    set "IW_OUT=%TEMP%\foldericon_pick_%RANDOM%.txt"
+    del "%IW_OUT%" 2>nul
+    echo.
+    echo  ...Opening file browser...
+    powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "Add-Type -AssemblyName System.Windows.Forms; $f=New-Object System.Windows.Forms.OpenFileDialog; $f.InitialDirectory=$env:IW_INIT; $f.Filter='Icon Files (*.ico;*.exe)|*.ico;*.exe|All Files (*.*)|*.*'; $f.Title='Select an Icon File'; if($f.ShowDialog() -eq 'OK'){ [IO.File]::WriteAllText($env:IW_OUT,$f.FileName,(New-Object Text.UTF8Encoding $false)) }"
+    if exist "%IW_OUT%" set /p "pickedIcon="<"%IW_OUT%"
+    del "%IW_OUT%" 2>nul
+goto :eof
+
+:PasteIconFile
+    REM Result in variable pickedIcon (empty = cancelled / invalid)
+    set "pickedIcon="
+    echo.
+    set "pasted="
+    set /p "pasted=  Paste icon path (.ico or .exe) and press Enter (empty = cancel): "
+    if not defined pasted goto :eof
+    set "pasted=%pasted:"=%"
+    for /f "tokens=* delims= " %%a in ("%pasted%") do set "pasted=%%a"
+    if not exist "%pasted%" (
+        echo  ...ERROR: That file does not exist.
+        pause
+        goto :eof
+    )
+    for %%F in ("%pasted%") do set "pastedExt=%%~xF"
+    if /i not "%pastedExt%"==".ico" if /i not "%pastedExt%"==".exe" (
+        echo  ...ERROR: The file must be an .ico or .exe
+        pause
+        goto :eof
+    )
+    for %%F in ("%pasted%") do set "pickedIcon=%%~fF"
+goto :eof
+
+:BatchChangeIcons
+    setlocal disabledelayedexpansion
+    call :PickFolder "BATCH CHANGE ICONS - choose the PARENT folder"
+    if not defined pickedFolder (
+        endlocal
+        goto :eof
+    )
+    call :BatchRun "%pickedFolder%"
+    endlocal
+goto :eof
+
+:BatchRun
+    REM %~1 = parent folder. Walks through every folder directly inside it.
+    setlocal disabledelayedexpansion
+    set "batchRoot=%~f1"
+    set "batchRootSlash=%batchRoot%\"
+    if "%batchRoot:~-1%"=="\" set "batchRootSlash=%batchRoot%"
+    set "batchIconDir=%batchRoot%"
+    set "batchList=%TEMP%\foldericon_batch_%RANDOM%.txt"
+    del "%batchList%" 2>nul
+
+    for /f "delims=" %%D in ('dir /b /a:d-h "%batchRoot%" 2^>nul ^| findstr /v /i /b /c:"$RECYCLE.BIN" /c:"System Volume Information"') do >>"%batchList%" echo %%D
+
+    set "batchTotal=0"
+    set "batchChanged=0"
+    set "batchSkipped=0"
+    if exist "%batchList%" for /f "usebackq delims=" %%L in ("%batchList%") do set /a batchTotal+=1
+
+    if %batchTotal% equ 0 (
+        echo.
+        echo  ...No subfolders found in that folder.
+        del "%batchList%" 2>nul
+        pause
+        endlocal
+        goto :eof
+    )
+    call :DebugLog "Batch started: %batchTotal% folders in %batchRoot%"
+    set "batchIdx=1"
+
+:BatchLoop
+    if %batchIdx% gtr %batchTotal% goto :BatchDone
+    if %batchIdx% lss 1 set "batchIdx=1"
+    set /a batchSkip=batchIdx-1
+    set "skipOpt="
+    if %batchSkip% gtr 0 set "skipOpt=skip=%batchSkip%"
+    set "batchName="
+    for /f "usebackq %skipOpt% delims=" %%N in ("%batchList%") do if not defined batchName set "batchName=%%N"
+    set "batchFolder=%batchRootSlash%%batchName%"
+
+    REM --- read the folder's current icon (desktop.ini may be UTF-16, so go through MORE) ---
+    set "batchCur="
+    if exist "%batchFolder%\desktop.ini" for /f "usebackq tokens=1* delims==" %%A in (`type "%batchFolder%\desktop.ini" ^| more`) do if /i "%%A"=="IconResource" set "batchCur=%%B"
+    if not defined batchCur set "batchCur=(default folder icon)"
+
+    cls
+    echo.
+    echo  ========================================================================
+    echo    BATCH CHANGE ICONS      Folder %batchIdx% of %batchTotal%
+    echo  ========================================================================
+    echo.
+    for %%X in ("%batchRoot%") do echo    Parent  : %%~X
+    for %%X in ("%batchFolder%") do echo    Folder  : %%~nxX
+    for %%X in ("%batchCur%") do echo    Icon now: %%~X
+    echo.
+    echo    [1]  Browse for an icon file  (.ico / .exe)
+    echo    [2]  Paste an icon path
+    echo    [3]  Auto-find an icon inside this folder
+    echo.
+    echo    [S]  Skip this folder  (go to next)
+    echo    [B]  Back to the previous folder
+    echo    [M]  Stop batch and return to Main Menu
+    echo    [E]  Exit
+    echo.
+    choice /C:123SBME /N /M "  Select your choice: "
+
+    if errorlevel 7 goto :QuitNow
+    if errorlevel 6 goto :BatchStop
+    if errorlevel 5 goto :BatchBack
+    if errorlevel 4 goto :BatchSkip
+    if errorlevel 3 goto :BatchAuto
+    if errorlevel 2 goto :BatchPaste
+
+:BatchBrowse
+    call :PickIconFile "%batchIconDir%"
+    if not defined pickedIcon goto :BatchLoop
+    for %%I in ("%pickedIcon%") do set "batchIconDir=%%~dpI"
+    goto :BatchApply
+
+:BatchPaste
+    call :PasteIconFile
+    if not defined pickedIcon goto :BatchLoop
+    goto :BatchApply
+
+:BatchApply
+    echo.
+    call :SetFolderIcon "%batchFolder%" "%pickedIcon%"
+    set /a batchChanged+=1
+    timeout /t 1 /nobreak >nul
+    goto :BatchNext
+
+:BatchAuto
+    call :ProcessFolder "%batchFolder%"
+    set /a batchChanged+=1
+    timeout /t 1 /nobreak >nul
+    goto :BatchNext
+
+:BatchSkip
+    set /a batchSkipped+=1
+
+:BatchNext
+    set /a batchIdx+=1
+    goto :BatchLoop
+
+:BatchBack
+    set /a batchIdx-=1
+    goto :BatchLoop
+
+:BatchStop
+    call :DebugLog "Batch stopped by user at %batchIdx% of %batchTotal%"
+    del "%batchList%" 2>nul
+    endlocal
+goto :eof
+
+:BatchDone
+    call :DebugLog "Batch finished. Changed=%batchChanged% Skipped=%batchSkipped%"
+    del "%batchList%" 2>nul
+    cls
+    echo.
+    echo  ========================================================================
+    echo    BATCH COMPLETE
+    echo  ========================================================================
+    echo.
+    echo    Folders reviewed : %batchTotal%
+    echo    Icons applied    : %batchChanged%
+    echo    Skipped          : %batchSkipped%
+    echo.
+    echo    [M]  Main Menu
+    echo    [E]  Exit
+    echo.
+    choice /C:ME /N /M "  Select your choice: "
+    if errorlevel 2 goto :QuitNow
+    endlocal
+goto :eof
+
+:FixFolderIcons
+    setlocal disabledelayedexpansion
+    call :PickFolder "FIX FOLDER ICONS - choose the folder"
+    if not defined pickedFolder (
+        endlocal
+        goto :eof
+    )
+    call :FixRun "%pickedFolder%"
+    endlocal
+goto :eof
+
+:FixRun
+    REM %~1 = folder. Repairs folders that have a desktop.ini icon but show nothing.
+    setlocal disabledelayedexpansion
+    set "fixRoot=%~f1"
+
+:FixMenu
+    cls
+    echo.
+    echo  ========================================================================
+    echo                         FIX FOLDER ICONS
+    echo  ========================================================================
+    echo.
+    echo    For folders that already have a correct desktop.ini but show no icon
+    echo    (for example the icon was set on another PC). This will:
+    echo      - re-apply the folder and desktop.ini attributes Explorer needs
+    echo      - find icon files that moved (e.g. a different drive letter)
+    echo      - refresh Explorer so the icon appears
+    echo.
+    for %%X in ("%fixRoot%") do echo    Target: %%~X
+    echo.
+    echo    [1]  Fix this folder + ALL subfolders  (recursive)
+    echo    [2]  Fix this folder + the folders directly inside it
+    echo    [3]  Fix this folder only
+    echo    [P]  Preview only - scan everything, change nothing
+    echo.
+    echo    [M]  Back
+    echo    [E]  Exit
+    echo.
+    choice /C:123PME /N /M "  Select your choice: "
+    if errorlevel 6 goto :QuitNow
+    if errorlevel 5 (
+        endlocal
+        goto :eof
+    )
+    if errorlevel 4 ( set "fixDepth=-1" & set "fixPreview=1" & goto :FixExecute )
+    if errorlevel 3 ( set "fixDepth=0" & set "fixPreview=0" & goto :FixExecute )
+    if errorlevel 2 ( set "fixDepth=1" & set "fixPreview=0" & goto :FixExecute )
+    set "fixDepth=-1"
+    set "fixPreview=0"
+
+:FixExecute
+    set "IW_PS1=%TEMP%\iw_fix_%RANDOM%.ps1"
+    set "IW_FIX_ROOT=%fixRoot%"
+    set "IW_FIX_DEPTH=%fixDepth%"
+    set "IW_FIX_PREVIEW=%fixPreview%"
+    call :DebugLog "Fix started. Depth=%fixDepth% Preview=%fixPreview%"
+    cls
+    echo.
+    echo  ========================================================================
+    echo    Scanning, please wait...
+    echo  ========================================================================
+    echo.
+    call :WriteFixScript
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%IW_PS1%"
+    del "%IW_PS1%" 2>nul
+    echo.
+    echo  ------------------------------------------------------------------------
+    echo    [A]  Apply the fixes now  (same folder and scope)
+    echo    [R]  Choose a different scope
+    echo    [M]  Back
+    echo    [E]  Exit
+    echo.
+    choice /C:ARME /N /M "  Select your choice: "
+    if errorlevel 4 goto :QuitNow
+    if errorlevel 3 (
+        endlocal
+        goto :eof
+    )
+    if errorlevel 2 goto :FixMenu
+    set "fixPreview=0"
+    goto :FixExecute
+
+:WriteFixScript
+REM Writes the PowerShell worker used by Fix mode to %IW_PS1%.
+REM It is generated from inside this script so it also works in the compiled .exe.
+>"%IW_PS1%" echo($ErrorActionPreference = 'SilentlyContinue'
+>>"%IW_PS1%" echo($root = $env:IW_FIX_ROOT.TrimEnd('\')
+>>"%IW_PS1%" echo(if ($root.Length -eq 2 -and $root[1] -eq ':') { $root = $root + '\' }
+>>"%IW_PS1%" echo($depth = [int]$env:IW_FIX_DEPTH
+>>"%IW_PS1%" echo($preview = ($env:IW_FIX_PREVIEW -eq '1')
+>>"%IW_PS1%" echo(
+>>"%IW_PS1%" echo($sig = '[DllImport("shell32.dll", CharSet=CharSet.Unicode)] public static extern void SHChangeNotify(int e, uint f, string a, string b);'
+>>"%IW_PS1%" echo(Add-Type -Namespace IW -Name Shell -MemberDefinition $sig
+>>"%IW_PS1%" echo(function Notify-Shell($path, $ev) { try { [IW.Shell]::SHChangeNotify($ev, 5, $path, $null) } catch {} }
+>>"%IW_PS1%" echo(
+>>"%IW_PS1%" echo(function Find-Icon($p, $folder) {
+>>"%IW_PS1%" echo(    # 1) same path on another drive letter
+>>"%IW_PS1%" echo(    if ($p -match '^^[A-Za-z]:\\(.+)$') {
+>>"%IW_PS1%" echo(        $rest = $matches[1]
+>>"%IW_PS1%" echo(        foreach ($d in [IO.DriveInfo]::GetDrives()) {
+>>"%IW_PS1%" echo(            try {
+>>"%IW_PS1%" echo(                if ($d.DriveType -ne 'CDRom' -and $d.IsReady) {
+>>"%IW_PS1%" echo(                    $c = Join-Path $d.RootDirectory.FullName $rest
+>>"%IW_PS1%" echo(                    if ([IO.File]::Exists($c)) { return $c }
+>>"%IW_PS1%" echo(                }
+>>"%IW_PS1%" echo(            } catch {}
+>>"%IW_PS1%" echo(        }
+>>"%IW_PS1%" echo(    }
+>>"%IW_PS1%" echo(    # 2) same file name somewhere inside the folder itself
+>>"%IW_PS1%" echo(    $name = [IO.Path]::GetFileName($p)
+>>"%IW_PS1%" echo(    if ($name) {
+>>"%IW_PS1%" echo(        $hit = Get-ChildItem -LiteralPath $folder -Filter $name -File -Recurse -Depth 4 -Force -ErrorAction SilentlyContinue ^| Select-Object -First 1
+>>"%IW_PS1%" echo(        if ($hit) { return $hit.FullName }
+>>"%IW_PS1%" echo(    }
+>>"%IW_PS1%" echo(    return $null
+>>"%IW_PS1%" echo(}
+>>"%IW_PS1%" echo(
+>>"%IW_PS1%" echo(# ---- collect folders ----
+>>"%IW_PS1%" echo($targets = New-Object System.Collections.Generic.List[string]
+>>"%IW_PS1%" echo($queue = New-Object System.Collections.Generic.Queue[object]
+>>"%IW_PS1%" echo($queue.Enqueue(@{ p = $root; l = 0 })
+>>"%IW_PS1%" echo(while ($queue.Count -gt 0) {
+>>"%IW_PS1%" echo(    $cur = $queue.Dequeue()
+>>"%IW_PS1%" echo(    $targets.Add($cur.p)
+>>"%IW_PS1%" echo(    if ($depth -ge 0 -and $cur.l -ge $depth) { continue }
+>>"%IW_PS1%" echo(    try {
+>>"%IW_PS1%" echo(        foreach ($c in [IO.Directory]::GetDirectories($cur.p)) {
+>>"%IW_PS1%" echo(            $n = [IO.Path]::GetFileName($c)
+>>"%IW_PS1%" echo(            if ($n -eq '$RECYCLE.BIN' -or $n -eq 'System Volume Information') { continue }
+>>"%IW_PS1%" echo(            if (([int][IO.File]::GetAttributes($c)) -band 1024) { continue }   # skip junctions/symlinks
+>>"%IW_PS1%" echo(            $queue.Enqueue(@{ p = $c; l = ($cur.l + 1) })
+>>"%IW_PS1%" echo(        }
+>>"%IW_PS1%" echo(    } catch {}
+>>"%IW_PS1%" echo(}
+>>"%IW_PS1%" echo(
+>>"%IW_PS1%" echo($withIcon = 0; $fixed = 0; $okc = 0; $missing = 0
+>>"%IW_PS1%" echo(
+>>"%IW_PS1%" echo(foreach ($f in $targets) {
+>>"%IW_PS1%" echo(    $ini = Join-Path $f 'desktop.ini'
+>>"%IW_PS1%" echo(    if (-not [IO.File]::Exists($ini)) { continue }
+>>"%IW_PS1%" echo(    $lines = $null
+>>"%IW_PS1%" echo(    try { $lines = [IO.File]::ReadAllLines($ini) } catch { continue }
+>>"%IW_PS1%" echo(
+>>"%IW_PS1%" echo(    $res = $null; $file = $null; $idx = '0'
+>>"%IW_PS1%" echo(    foreach ($l in $lines) {
+>>"%IW_PS1%" echo(        if ($l -match '^^\s*IconResource\s*=\s*(.*?)\s*$') { $res = $matches[1] }
+>>"%IW_PS1%" echo(        elseif ($l -match '^^\s*IconFile\s*=\s*(.*?)\s*$') { $file = $matches[1] }
+>>"%IW_PS1%" echo(        elseif ($l -match '^^\s*IconIndex\s*=\s*(-?\d+)') { $idx = $matches[1] }
+>>"%IW_PS1%" echo(    }
+>>"%IW_PS1%" echo(    if (-not $res -and $file) { $res = "$file,$idx" }
+>>"%IW_PS1%" echo(    if (-not $res) { continue }
+>>"%IW_PS1%" echo(    $withIcon++
+>>"%IW_PS1%" echo(
+>>"%IW_PS1%" echo(    $path = $res; $index = '0'
+>>"%IW_PS1%" echo(    if ($res -match '^^(.*),\s*(-?\d+)\s*$') { $path = $matches[1]; $index = $matches[2] }
+>>"%IW_PS1%" echo(    $path = $path.Trim('"')
+>>"%IW_PS1%" echo(    $exp = [Environment]::ExpandEnvironmentVariables($path)
+>>"%IW_PS1%" echo(    if (-not [IO.Path]::IsPathRooted($exp)) { $exp = Join-Path $f $exp }
+>>"%IW_PS1%" echo(
+>>"%IW_PS1%" echo(    $rel = $f.Substring([Math]::Min($root.Length, $f.Length)).TrimStart('\')
+>>"%IW_PS1%" echo(    if (-not $rel) { $rel = '(this folder) ' + [IO.Path]::GetFileName($f) }
+>>"%IW_PS1%" echo(
+>>"%IW_PS1%" echo(    $notes = New-Object System.Collections.Generic.List[string]
+>>"%IW_PS1%" echo(    $newPath = $null
+>>"%IW_PS1%" echo(    $isMissing = $false
+>>"%IW_PS1%" echo(
+>>"%IW_PS1%" echo(    # --- icon file present? ---
+>>"%IW_PS1%" echo(    if (-not [IO.File]::Exists($exp)) {
+>>"%IW_PS1%" echo(        $newPath = Find-Icon $exp $f
+>>"%IW_PS1%" echo(        if ($newPath) { $notes.Add("icon path remapped: $exp  =>  $newPath") }
+>>"%IW_PS1%" echo(        else { $isMissing = $true }
+>>"%IW_PS1%" echo(    }
+>>"%IW_PS1%" echo(
+>>"%IW_PS1%" echo(    # --- rewrite desktop.ini if the path changed ---
+>>"%IW_PS1%" echo(    if ($newPath -and -not $preview) {
+>>"%IW_PS1%" echo(        $new = New-Object System.Collections.Generic.List[string]
+>>"%IW_PS1%" echo(        $done = $false
+>>"%IW_PS1%" echo(        foreach ($l in $lines) {
+>>"%IW_PS1%" echo(            if ($l -match '^^\s*IconResource\s*=') { $new.Add("IconResource=$newPath,$index"); $done = $true }
+>>"%IW_PS1%" echo(            else { $new.Add($l) }
+>>"%IW_PS1%" echo(        }
+>>"%IW_PS1%" echo(        if (-not $done) {
+>>"%IW_PS1%" echo(            $out = New-Object System.Collections.Generic.List[string]
+>>"%IW_PS1%" echo(            $ins = $false
+>>"%IW_PS1%" echo(            foreach ($l in $new) {
+>>"%IW_PS1%" echo(                $out.Add($l)
+>>"%IW_PS1%" echo(                if (-not $ins -and $l -match '^^\s*\[\.ShellClassInfo\]') { $out.Add("IconResource=$newPath,$index"); $ins = $true }
+>>"%IW_PS1%" echo(            }
+>>"%IW_PS1%" echo(            if (-not $ins) { $out.Insert(0, '[.ShellClassInfo]'); $out.Insert(1, "IconResource=$newPath,$index") }
+>>"%IW_PS1%" echo(            $new = $out
+>>"%IW_PS1%" echo(        }
+>>"%IW_PS1%" echo(        try {
+>>"%IW_PS1%" echo(            [IO.File]::SetAttributes($ini, [IO.FileAttributes]128)
+>>"%IW_PS1%" echo(            [IO.File]::WriteAllLines($ini, $new.ToArray(), [Text.Encoding]::Unicode)
+>>"%IW_PS1%" echo(        } catch { $notes.Add('could not rewrite desktop.ini (access denied?)') }
+>>"%IW_PS1%" echo(    }
+>>"%IW_PS1%" echo(
+>>"%IW_PS1%" echo(    # --- desktop.ini must be Hidden + System ---
+>>"%IW_PS1%" echo(    $iniA = [int][IO.File]::GetAttributes($ini)
+>>"%IW_PS1%" echo(    if (($iniA -band 6) -ne 6) {
+>>"%IW_PS1%" echo(        if (-not $preview) { try { [IO.File]::SetAttributes($ini, [IO.FileAttributes]($iniA -bor 6)) } catch {} }
+>>"%IW_PS1%" echo(        $notes.Add('desktop.ini attributes (hidden+system) restored')
+>>"%IW_PS1%" echo(    } elseif ($newPath -and -not $preview) {
+>>"%IW_PS1%" echo(        try { [IO.File]::SetAttributes($ini, [IO.FileAttributes]($iniA -bor 6)) } catch {}
+>>"%IW_PS1%" echo(    }
+>>"%IW_PS1%" echo(
+>>"%IW_PS1%" echo(    # --- the folder itself must be ReadOnly or System for Explorer to read desktop.ini ---
+>>"%IW_PS1%" echo(    $dirA = [int][IO.File]::GetAttributes($f)
+>>"%IW_PS1%" echo(    if (($dirA -band 5) -eq 0) {
+>>"%IW_PS1%" echo(        if (-not $preview) { try { [IO.File]::SetAttributes($f, [IO.FileAttributes]($dirA -bor 1)) } catch {} }
+>>"%IW_PS1%" echo(        $notes.Add('folder attribute set (this was the usual cause)')
+>>"%IW_PS1%" echo(    }
+>>"%IW_PS1%" echo(
+>>"%IW_PS1%" echo(    if (-not $preview) {
+>>"%IW_PS1%" echo(        Notify-Shell $f 0x2000
+>>"%IW_PS1%" echo(        $par = [IO.Path]::GetDirectoryName($f)
+>>"%IW_PS1%" echo(        if ($par) { Notify-Shell $par 0x1000 }
+>>"%IW_PS1%" echo(    }
+>>"%IW_PS1%" echo(
+>>"%IW_PS1%" echo(    $verb = if ($preview) { 'WOULD FIX' } else { 'FIXED' }
+>>"%IW_PS1%" echo(    if ($isMissing) {
+>>"%IW_PS1%" echo(        $missing++
+>>"%IW_PS1%" echo(        Write-Host ("[MISSING ICON] {0}" -f $rel) -ForegroundColor Red
+>>"%IW_PS1%" echo(        Write-Host ("               icon file not found: {0}" -f $exp) -ForegroundColor DarkRed
+>>"%IW_PS1%" echo(        foreach ($n in $notes) { Write-Host ("               {0}" -f $n) -ForegroundColor Yellow }
+>>"%IW_PS1%" echo(        if ($notes.Count -gt 0) { $fixed++ }
+>>"%IW_PS1%" echo(    } elseif ($notes.Count -gt 0) {
+>>"%IW_PS1%" echo(        $fixed++
+>>"%IW_PS1%" echo(        Write-Host ("[{0}] {1}" -f $verb, $rel) -ForegroundColor Green
+>>"%IW_PS1%" echo(        foreach ($n in $notes) { Write-Host ("        {0}" -f $n) -ForegroundColor Yellow }
+>>"%IW_PS1%" echo(    } else {
+>>"%IW_PS1%" echo(        $okc++
+>>"%IW_PS1%" echo(        Write-Host ("[OK] {0}" -f $rel) -ForegroundColor DarkGray
+>>"%IW_PS1%" echo(    }
+>>"%IW_PS1%" echo(}
+>>"%IW_PS1%" echo(
+>>"%IW_PS1%" echo(if (-not $preview) {
+>>"%IW_PS1%" echo(    try { [IW.Shell]::SHChangeNotify(0x08000000, 0, $null, $null) } catch {}
+>>"%IW_PS1%" echo(    if ($fixed -gt 0) { try { Start-Process -FilePath "$env:windir\System32\ie4uinit.exe" -ArgumentList '-show' -WindowStyle Hidden } catch {} }
+>>"%IW_PS1%" echo(}
+>>"%IW_PS1%" echo(
+>>"%IW_PS1%" echo(Write-Host ''
+>>"%IW_PS1%" echo(Write-Host '========================================================================'
+>>"%IW_PS1%" echo(Write-Host ("Folders scanned          : {0}" -f $targets.Count)
+>>"%IW_PS1%" echo(Write-Host ("Folders with custom icon : {0}" -f $withIcon)
+>>"%IW_PS1%" echo(if ($preview) { Write-Host ("Would be fixed           : {0}" -f $fixed) } else { Write-Host ("Fixed                    : {0}" -f $fixed) }
+>>"%IW_PS1%" echo(Write-Host ("Already fine             : {0}" -f $okc)
+>>"%IW_PS1%" echo(if ($missing -gt 0) { Write-Host ("Icon file missing        : {0}  (the icon file itself must exist to be shown)" -f $missing) -ForegroundColor Red }
+>>"%IW_PS1%" echo(if (-not $preview -and $fixed -gt 0) { Write-Host 'Explorer was refreshed. If an icon still looks stale, press F5 or reopen the window.' }
+>>"%IW_PS1%" echo(Write-Host '========================================================================'
+goto :eof
+
+:eof
