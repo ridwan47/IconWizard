@@ -1,4 +1,12 @@
 @echo off
+REM --- Run the script inside its own cmd instance. This makes "exit" close the
+REM --- WHOLE script from any depth of menus (fixes having to press E twice).
+if defined IW_CHILD goto :IW_Start
+setlocal
+set "IW_CHILD=1"
+cmd /c ""%~f0" %*"
+exit /b
+:IW_Start
 REM ============================================================================
 REM             	  Icon Wizard by ridwan47
 REM ============================================================================
@@ -21,7 +29,7 @@ REM ============================================================================
 REM Installation paths
 set "INSTALL_DIR=%ProgramFiles%\Icon Wizard"
 set "INSTALL_RESOURCES=%INSTALL_DIR%\Resources"
-set "SCRIPT_VERSION=4.7.6"
+set "SCRIPT_VERSION=2.0"
 
 REM Check if we're running from Program Files (installed mode)
 set "isInstalled=0"
@@ -125,46 +133,32 @@ echo  ========================================================================
 echo                       Icon Wizard v%SCRIPT_VERSION%
 echo  ========================================================================
 echo.
-echo  TIP: Drag a folder onto the .bat file for quick single-folder operation
-echo  DEBUG LOG: %temp%\_folder_icon_debug.log
-echo.
-echo  ========================================================================
-echo                          OPERATION MODES
-echo  ========================================================================
-echo.
-echo    --- FOLDER ICON CHANGER ---
-echo    [1]  Browse for a folder
-echo    [2]  Paste folder path manually
-echo    [3]  Scan all subfolders in current directory
+echo    --- FOLDER ICONS ---
+echo    [1]  Change icon of ONE folder  (browse for the folder)
+echo    [2]  Change icon of ONE folder  (paste the folder path)
+echo    [3]  BATCH change icons - go through every folder inside a folder
+echo    [4]  FIX folders whose icon does not show  (single or batch)
 echo.
 echo    --- IMAGE CONVERTER ---
-echo    [4]  Icon Conversion Tools
+echo    [5]  Icon Conversion Tools
 echo.
 echo  ------------------------------------------------------------------------
-echo.
-echo                    CONTEXT MENU INTEGRATION
-echo.
-echo    [I]  Install Context Menu     (Press I to Install)
-echo    [U]  Uninstall Context Menu   (Press U to Uninstall)
-echo.
-echo  ------------------------------------------------------------------------
-echo.
+echo    [I]  Install Context Menu       [U]  Uninstall Context Menu
 echo    [E]  Exit
-echo.
 echo  ========================================================================
 echo.
+echo   TIP: Drag a folder onto this .bat file for quick single-folder use.
+echo   Debug log: %temp%\_folder_icon_debug.log
+echo.
 
-choice /C:1234IUE /N /M "  Select your choice: "
+choice /C:12345IUE /N /M "  Select your choice: "
 
-if errorlevel 7 (
-    call :DebugLog "Main Menu Choice: E (Exit)"
-    call :Cleanup
-    exit /b
-)
-if errorlevel 6 ( call :DebugLog "Main Menu Choice: U (Uninstall)" & goto :UninstallContextMenu )
-if errorlevel 5 ( call :DebugLog "Main Menu Choice: I (Install)" & goto :InstallContextMenu )
-if errorlevel 4 ( call :DebugLog "Main Menu Choice: 4" & goto :ImageConverterMainMenu )
-if errorlevel 3 ( call :DebugLog "Main Menu Choice: 3" & goto :ProcessAllSubfolders )
+if errorlevel 8 goto :QuitNow
+if errorlevel 7 ( call :DebugLog "Main Menu Choice: U" & goto :UninstallContextMenu )
+if errorlevel 6 ( call :DebugLog "Main Menu Choice: I" & goto :InstallContextMenu )
+if errorlevel 5 ( call :DebugLog "Main Menu Choice: 5" & goto :ImageConverterMainMenu )
+if errorlevel 4 ( call :DebugLog "Main Menu Choice: 4 (Fix)" & call :FixFolderIcons & goto :MainMenu )
+if errorlevel 3 ( call :DebugLog "Main Menu Choice: 3 (Batch)" & call :BatchChangeIcons & goto :MainMenu )
 if errorlevel 2 ( call :DebugLog "Main Menu Choice: 2" & goto :ManualFolderInput )
 if errorlevel 1 ( call :DebugLog "Main Menu Choice: 1" & goto :BrowseForSingleFolder )
 goto :MainMenu
@@ -194,43 +188,6 @@ if defined selectedFolder (
     pause
 )
 goto :MainMenu
-
-:ProcessAllSubfolders
-    call :DebugLog "Option 3: Scan all subfolders selected."
-    echo.
-    set "returnToMenu="
-    set "folderCount=0"
-    
-    REM Count folders first
-    for /D %%I in (*) do set /a folderCount+=1
-    
-    if !folderCount! equ 0 (
-        echo No subfolders found in current directory.
-        pause
-        goto :MainMenu
-    )
-    
-    echo Found !folderCount! subfolder(s) to process.
-    echo.
-    
-    set "processedCount=0"
-    for /D %%I in (*) do (
-        set /a processedCount+=1
-        echo Processing [!processedCount!/!folderCount!]: %%~nxI
-        call :DebugLog "Processing subfolder: %%~fI"
-        call :OfferFolderActions "%%~fI"
-        if defined returnToMenu goto :SubfolderLoopEnd
-        echo.
-    )
-    :SubfolderLoopEnd
-    cls
-    echo.
-    echo ======================================================
-    echo  Subfolder scan complete. Returning to main menu.
-    echo ======================================================
-    echo.
-    pause
-    goto :MainMenu
 
 :ManualFolderInput
 call :DebugLog "Option 2: Manual path input selected."
@@ -279,11 +236,12 @@ goto :MainMenu
 :ExitScript
 call :Cleanup
 call :DebugLog "======== SCRIPT SESSION FINISHED (Normal Exit) ========"
-echo ======================================================
-echo Script finished.
-echo ======================================================
-pause
-goto :eof
+exit
+
+:QuitNow
+call :Cleanup
+call :DebugLog "User chose to exit."
+exit
 
 :HandleFileConversion
     call :DebugLog "File dropped/context menu used. Routing to image converter."
@@ -305,24 +263,36 @@ goto :eof
     echo   1. Browse for an external icon (Windows Browse GUI)
     echo   2. Drag ^& Drop Icon File / Paste icon path manually
     echo   3. Process this folder (find icons inside the folder)
+    echo   4. BATCH: change icons of every folder INSIDE this folder
+    echo   5. FIX: repair icon display for this folder / its subfolders
     echo ===============================================
     echo   0. Skip Folder
     echo   M. Main Menu
     echo   E. Exit
     echo.
-    choice /C:1230ME /N /M "Select an option: "
+    choice /C:123450ME /N /M "Select an option: "
 
-    if errorlevel 6 ( call :Cleanup & exit /b )
-    if errorlevel 5 (
+    if errorlevel 8 goto :QuitNow
+    if errorlevel 7 (
         call :DebugLog "Action Choice: M (Main Menu)"
         endlocal
         set "returnToMenu=true"
         goto :MainMenu
     )
-    if errorlevel 4 (
+    if errorlevel 6 (
         call :DebugLog "Action Choice: 0 (Skip folder)"
         echo ...Skipping folder.
         endlocal
+        goto :eof
+    )
+    if errorlevel 5 (
+        call :DebugLog "Action Choice: 5 (Fix icons)"
+        endlocal & call :FixRun "%folderPath%"
+        goto :eof
+    )
+    if errorlevel 4 (
+        call :DebugLog "Action Choice: 4 (Batch subfolders)"
+        endlocal & call :BatchRun "%folderPath%"
         goto :eof
     )
     if errorlevel 3 (
@@ -487,7 +457,7 @@ goto :eof
         set "returnToMenu=true"
         goto :MainMenu
     )
-    if %choiceErrorLevel% equ 4 ( call :Cleanup & exit /b )
+    if %choiceErrorLevel% equ 4 ( call :Cleanup & exit )
     
     set /a "selectedChoice = choiceErrorLevel - 4"
     call :FindSelectionByNumber "%targetFolder%" "%tempFileArg%" %selectedChoice%
@@ -498,7 +468,7 @@ goto :eof
     set /p "userChoice=Type your choice (0-%totalCountArg%, B, M, or E) and press Enter: "
     call :DebugLog "Legacy prompt input received"
 
-    if /i "%userChoice%"=="e" ( call :Cleanup & exit /b )
+    if /i "%userChoice%"=="e" ( call :Cleanup & exit )
     if /i "%userChoice%"=="m" (
         call :DebugLog "User chose M for Main Menu."
         endlocal
@@ -993,7 +963,7 @@ set /a currentLvl+=1
 if %userChoiceLvl% equ !currentLvl! (
     call :DebugLog "User chose E - Exit"
     call :Cleanup
-    exit /b
+    exit
 )
 
 call :DebugLog "ERROR: Invalid choice mapping! Fell through all checks."
@@ -1053,7 +1023,7 @@ ECHO   ========================================================================
 ECHO.
 CHOICE /C 1234567PJWME /N /M "Enter your choice: "
 
-IF ERRORLEVEL 12 call :Cleanup & exit /b
+IF ERRORLEVEL 12 call :Cleanup & exit
 IF ERRORLEVEL 11 GOTO :MainMenu
 IF ERRORLEVEL 10 GOTO :HandleOptionW
 IF ERRORLEVEL 9 GOTO :HandleOptionJ
@@ -1114,7 +1084,7 @@ ECHO   ========================================================================
 ECHO.
 CHOICE /C 123456PJWME /N /M "Enter your choice: "
 
-IF ERRORLEVEL 11 call :Cleanup & exit /b
+IF ERRORLEVEL 11 call :Cleanup & exit
 IF ERRORLEVEL 10 GOTO :ImageConverterMainMenu
 IF ERRORLEVEL 9 GOTO :HandleFolderOptionW
 IF ERRORLEVEL 8 GOTO :HandleFolderOptionJ
@@ -1592,7 +1562,7 @@ ECHO   ========================================================================
 ECHO.
 CHOICE /C 12ME /N /M "Enter your choice: "
 
-IF ERRORLEVEL 4 call :Cleanup & exit /b
+IF ERRORLEVEL 4 call :Cleanup & exit
 IF ERRORLEVEL 3 GOTO :EOF
 IF ERRORLEVEL 2 GOTO :paste_path_manual
 IF ERRORLEVEL 1 GOTO :browse_for_file
@@ -1644,7 +1614,7 @@ ECHO   ========================================================================
 ECHO.
 CHOICE /C 12ME /N /M "Enter your choice: "
 
-IF ERRORLEVEL 4 call :Cleanup & exit /b
+IF ERRORLEVEL 4 call :Cleanup & exit
 IF ERRORLEVEL 3 GOTO :EOF
 IF ERRORLEVEL 2 GOTO :paste_folder_path
 IF ERRORLEVEL 1 GOTO :browse_for_folder
@@ -1975,7 +1945,7 @@ ECHO     [E] Exit
 ECHO   ========================================================================
 ECHO.
 CHOICE /C ME /N /M "Select your choice: "
-IF ERRORLEVEL 2 call :Cleanup & exit /b
+IF ERRORLEVEL 2 call :Cleanup & exit
 IF ERRORLEVEL 1 GOTO :MainMenu
 GOTO :MainMenu
 
@@ -1990,7 +1960,7 @@ ECHO     [M] Return to Main Menu
 ECHO     [E] Exit
 ECHO.
 CHOICE /C ME /N /M "  Select your choice: "
-IF ERRORLEVEL 2 ( call :Cleanup & call :DebugLog "User chose to exit." & exit /b )
+IF ERRORLEVEL 2 ( call :Cleanup & call :DebugLog "User chose to exit." & exit )
 IF ERRORLEVEL 1 GOTO :MainMenu
 GOTO :MainMenu
 
@@ -2008,7 +1978,7 @@ ECHO     [M] Return to Main Menu
 ECHO     [E] Exit
 ECHO.
 CHOICE /C IME /N /M "  Select your choice: "
-if errorlevel 3 ( call :Cleanup & call :DebugLog "User chose to exit from complete menu." & endlocal & exit /b )
+if errorlevel 3 ( call :Cleanup & call :DebugLog "User chose to exit from complete menu." & endlocal & exit )
 if errorlevel 2 ( endlocal & goto :MainMenu )
 if errorlevel 1 (
     call :OfferFolderActions "%processedFolder%"
@@ -2348,4 +2318,500 @@ REM ============================================================================
     pause
     goto :MainMenu
 
+
+REM ============================================================================
+REM ============================================================================
+REM ==            BATCH ICON CHANGER + FIX BROKEN ICONS (v2.0)              ==
+REM ============================================================================
+REM ============================================================================
+
+:PickFolder
+    REM %~1 = title. Result is returned in variable pickedFolder (empty = cancelled/back)
+    set "pickedFolder="
+    cls
+    echo.
+    echo  ========================================================================
+    echo    %~1
+    echo  ========================================================================
+    echo.
+    echo    Which folder?
+    echo.
+    echo    [1]  Browse for a folder
+    echo    [2]  Paste a folder path
+    echo    [3]  Use the current directory:
+    for %%X in ("%CD%") do echo         %%~X
+    echo.
+    echo    [M]  Back
+    echo    [E]  Exit
+    echo.
+    choice /C:123ME /N /M "  Select your choice: "
+    if errorlevel 5 goto :QuitNow
+    if errorlevel 4 goto :eof
+    if errorlevel 3 goto :PickFolder_Cwd
+    if errorlevel 2 goto :PickFolder_Paste
+    goto :PickFolder_Browse
+
+:PickFolder_Cwd
+    set "pickedFolder=%CD%"
+goto :eof
+
+:PickFolder_Browse
+    echo.
+    echo  ...Opening folder browser...
+    set "IW_INIT=%CD%"
+    set "IW_OUT=%TEMP%\foldericon_pick_%RANDOM%.txt"
+    del "%IW_OUT%" 2>nul
+    powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "Add-Type -AssemblyName System.Windows.Forms; $f=New-Object System.Windows.Forms.OpenFileDialog; $f.Title='Open the folder you want, then click Open'; $f.ValidateNames=$false; $f.CheckFileExists=$false; $f.CheckPathExists=$true; $f.InitialDirectory=$env:IW_INIT; $f.FileName='Select This Folder'; if($f.ShowDialog() -eq 'OK'){ [IO.File]::WriteAllText($env:IW_OUT,[IO.Path]::GetDirectoryName($f.FileName),(New-Object Text.UTF8Encoding $false)) }"
+    if exist "%IW_OUT%" set /p "pickedFolder="<"%IW_OUT%"
+    del "%IW_OUT%" 2>nul
+    if not defined pickedFolder (
+        echo  ...No folder selected.
+        timeout /t 1 /nobreak >nul
+    )
+goto :eof
+
+:PickFolder_Paste
+    echo.
+    set "pasted="
+    set /p "pasted=  Paste folder path and press Enter (empty = cancel): "
+    if not defined pasted goto :eof
+    set "pasted=%pasted:"=%"
+    for /f "tokens=* delims= " %%a in ("%pasted%") do set "pasted=%%a"
+    if not exist "%pasted%\" (
+        echo.
+        echo  ...ERROR: That is not a valid folder.
+        pause
+        goto :eof
+    )
+    for %%A in ("%pasted%\.") do set "pickedFolder=%%~fA"
+goto :eof
+
+:PickIconFile
+    REM %~1 = folder to start browsing in. Result in variable pickedIcon (empty = cancelled)
+    set "pickedIcon="
+    set "IW_INIT=%~1"
+    set "IW_OUT=%TEMP%\foldericon_pick_%RANDOM%.txt"
+    del "%IW_OUT%" 2>nul
+    echo.
+    echo  ...Opening file browser...
+    powershell -NoProfile -NonInteractive -ExecutionPolicy Bypass -Command "Add-Type -AssemblyName System.Windows.Forms; $f=New-Object System.Windows.Forms.OpenFileDialog; $f.InitialDirectory=$env:IW_INIT; $f.Filter='Icon Files (*.ico;*.exe)|*.ico;*.exe|All Files (*.*)|*.*'; $f.Title='Select an Icon File'; if($f.ShowDialog() -eq 'OK'){ [IO.File]::WriteAllText($env:IW_OUT,$f.FileName,(New-Object Text.UTF8Encoding $false)) }"
+    if exist "%IW_OUT%" set /p "pickedIcon="<"%IW_OUT%"
+    del "%IW_OUT%" 2>nul
+goto :eof
+
+:PasteIconFile
+    REM Result in variable pickedIcon (empty = cancelled / invalid)
+    set "pickedIcon="
+    echo.
+    set "pasted="
+    set /p "pasted=  Paste icon path (.ico or .exe) and press Enter (empty = cancel): "
+    if not defined pasted goto :eof
+    set "pasted=%pasted:"=%"
+    for /f "tokens=* delims= " %%a in ("%pasted%") do set "pasted=%%a"
+    if not exist "%pasted%" (
+        echo  ...ERROR: That file does not exist.
+        pause
+        goto :eof
+    )
+    for %%F in ("%pasted%") do set "pastedExt=%%~xF"
+    if /i not "%pastedExt%"==".ico" if /i not "%pastedExt%"==".exe" (
+        echo  ...ERROR: The file must be an .ico or .exe
+        pause
+        goto :eof
+    )
+    for %%F in ("%pasted%") do set "pickedIcon=%%~fF"
+goto :eof
+
+:BatchChangeIcons
+    setlocal disabledelayedexpansion
+    call :PickFolder "BATCH CHANGE ICONS - choose the PARENT folder"
+    if not defined pickedFolder (
+        endlocal
+        goto :eof
+    )
+    call :BatchRun "%pickedFolder%"
+    endlocal
+goto :eof
+
+:BatchRun
+    REM %~1 = parent folder. Walks through every folder directly inside it.
+    setlocal disabledelayedexpansion
+    set "batchRoot=%~f1"
+    set "batchRootSlash=%batchRoot%\"
+    if "%batchRoot:~-1%"=="\" set "batchRootSlash=%batchRoot%"
+    set "batchIconDir=%batchRoot%"
+    set "batchList=%TEMP%\foldericon_batch_%RANDOM%.txt"
+    del "%batchList%" 2>nul
+
+    for /f "delims=" %%D in ('dir /b /a:d-h "%batchRoot%" 2^>nul ^| findstr /v /i /b /c:"$RECYCLE.BIN" /c:"System Volume Information"') do >>"%batchList%" echo %%D
+
+    set "batchTotal=0"
+    set "batchChanged=0"
+    set "batchSkipped=0"
+    if exist "%batchList%" for /f "usebackq delims=" %%L in ("%batchList%") do set /a batchTotal+=1
+
+    if %batchTotal% equ 0 (
+        echo.
+        echo  ...No subfolders found in that folder.
+        del "%batchList%" 2>nul
+        pause
+        endlocal
+        goto :eof
+    )
+    call :DebugLog "Batch started: %batchTotal% folders in %batchRoot%"
+    set "batchIdx=1"
+
+:BatchLoop
+    if %batchIdx% gtr %batchTotal% goto :BatchDone
+    if %batchIdx% lss 1 set "batchIdx=1"
+    set /a batchSkip=batchIdx-1
+    set "skipOpt="
+    if %batchSkip% gtr 0 set "skipOpt=skip=%batchSkip%"
+    set "batchName="
+    for /f "usebackq %skipOpt% delims=" %%N in ("%batchList%") do if not defined batchName set "batchName=%%N"
+    set "batchFolder=%batchRootSlash%%batchName%"
+
+    REM --- read the folder's current icon (desktop.ini may be UTF-16, so go through MORE) ---
+    set "batchCur="
+    if exist "%batchFolder%\desktop.ini" for /f "usebackq tokens=1* delims==" %%A in (`type "%batchFolder%\desktop.ini" ^| more`) do if /i "%%A"=="IconResource" set "batchCur=%%B"
+    if not defined batchCur set "batchCur=(default folder icon)"
+
+    cls
+    echo.
+    echo  ========================================================================
+    echo    BATCH CHANGE ICONS      Folder %batchIdx% of %batchTotal%
+    echo  ========================================================================
+    echo.
+    for %%X in ("%batchRoot%") do echo    Parent  : %%~X
+    for %%X in ("%batchFolder%") do echo    Folder  : %%~nxX
+    for %%X in ("%batchCur%") do echo    Icon now: %%~X
+    echo.
+    echo    [1]  Browse for an icon file  (.ico / .exe)
+    echo    [2]  Paste an icon path
+    echo    [3]  Auto-find an icon inside this folder
+    echo.
+    echo    [S]  Skip this folder  (go to next)
+    echo    [B]  Back to the previous folder
+    echo    [M]  Stop batch and return to Main Menu
+    echo    [E]  Exit
+    echo.
+    choice /C:123SBME /N /M "  Select your choice: "
+
+    if errorlevel 7 goto :QuitNow
+    if errorlevel 6 goto :BatchStop
+    if errorlevel 5 goto :BatchBack
+    if errorlevel 4 goto :BatchSkip
+    if errorlevel 3 goto :BatchAuto
+    if errorlevel 2 goto :BatchPaste
+
+:BatchBrowse
+    call :PickIconFile "%batchIconDir%"
+    if not defined pickedIcon goto :BatchLoop
+    for %%I in ("%pickedIcon%") do set "batchIconDir=%%~dpI"
+    goto :BatchApply
+
+:BatchPaste
+    call :PasteIconFile
+    if not defined pickedIcon goto :BatchLoop
+    goto :BatchApply
+
+:BatchApply
+    echo.
+    call :SetFolderIcon "%batchFolder%" "%pickedIcon%"
+    set /a batchChanged+=1
+    timeout /t 1 /nobreak >nul
+    goto :BatchNext
+
+:BatchAuto
+    call :ProcessFolder "%batchFolder%"
+    set /a batchChanged+=1
+    timeout /t 1 /nobreak >nul
+    goto :BatchNext
+
+:BatchSkip
+    set /a batchSkipped+=1
+
+:BatchNext
+    set /a batchIdx+=1
+    goto :BatchLoop
+
+:BatchBack
+    set /a batchIdx-=1
+    goto :BatchLoop
+
+:BatchStop
+    call :DebugLog "Batch stopped by user at %batchIdx% of %batchTotal%"
+    del "%batchList%" 2>nul
+    endlocal
+goto :eof
+
+:BatchDone
+    call :DebugLog "Batch finished. Changed=%batchChanged% Skipped=%batchSkipped%"
+    del "%batchList%" 2>nul
+    cls
+    echo.
+    echo  ========================================================================
+    echo    BATCH COMPLETE
+    echo  ========================================================================
+    echo.
+    echo    Folders reviewed : %batchTotal%
+    echo    Icons applied    : %batchChanged%
+    echo    Skipped          : %batchSkipped%
+    echo.
+    echo    [M]  Main Menu
+    echo    [E]  Exit
+    echo.
+    choice /C:ME /N /M "  Select your choice: "
+    if errorlevel 2 goto :QuitNow
+    endlocal
+goto :eof
+
+:FixFolderIcons
+    setlocal disabledelayedexpansion
+    call :PickFolder "FIX FOLDER ICONS - choose the folder"
+    if not defined pickedFolder (
+        endlocal
+        goto :eof
+    )
+    call :FixRun "%pickedFolder%"
+    endlocal
+goto :eof
+
+:FixRun
+    REM %~1 = folder. Repairs folders that have a desktop.ini icon but show nothing.
+    setlocal disabledelayedexpansion
+    set "fixRoot=%~f1"
+
+:FixMenu
+    cls
+    echo.
+    echo  ========================================================================
+    echo                         FIX FOLDER ICONS
+    echo  ========================================================================
+    echo.
+    echo    For folders that already have a correct desktop.ini but show no icon
+    echo    (for example the icon was set on another PC). This will:
+    echo      - re-apply the folder and desktop.ini attributes Explorer needs
+    echo      - find icon files that moved (e.g. a different drive letter)
+    echo      - refresh Explorer so the icon appears
+    echo.
+    for %%X in ("%fixRoot%") do echo    Target: %%~X
+    echo.
+    echo    [1]  Fix this folder + ALL subfolders  (recursive)
+    echo    [2]  Fix this folder + the folders directly inside it
+    echo    [3]  Fix this folder only
+    echo    [P]  Preview only - scan everything, change nothing
+    echo.
+    echo    [M]  Back
+    echo    [E]  Exit
+    echo.
+    choice /C:123PME /N /M "  Select your choice: "
+    if errorlevel 6 goto :QuitNow
+    if errorlevel 5 (
+        endlocal
+        goto :eof
+    )
+    if errorlevel 4 ( set "fixDepth=-1" & set "fixPreview=1" & goto :FixExecute )
+    if errorlevel 3 ( set "fixDepth=0" & set "fixPreview=0" & goto :FixExecute )
+    if errorlevel 2 ( set "fixDepth=1" & set "fixPreview=0" & goto :FixExecute )
+    set "fixDepth=-1"
+    set "fixPreview=0"
+
+:FixExecute
+    set "IW_SELF=%~f0"
+    set "IW_FIX_ROOT=%fixRoot%"
+    set "IW_FIX_DEPTH=%fixDepth%"
+    set "IW_FIX_PREVIEW=%fixPreview%"
+    call :DebugLog "Fix started. Depth=%fixDepth% Preview=%fixPreview%"
+    cls
+    echo.
+    echo  ========================================================================
+    echo    Scanning, please wait...
+    echo  ========================================================================
+    echo.
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "$t=[IO.File]::ReadAllText($env:IW_SELF); $m='::PSFIX-BEGIN'; Invoke-Expression $t.Substring($t.LastIndexOf($m)+$m.Length)"
+    echo.
+    echo  ------------------------------------------------------------------------
+    echo    [A]  Apply the fixes now  (same folder and scope)
+    echo    [R]  Choose a different scope
+    echo    [M]  Back
+    echo    [E]  Exit
+    echo.
+    choice /C:ARME /N /M "  Select your choice: "
+    if errorlevel 4 goto :QuitNow
+    if errorlevel 3 (
+        endlocal
+        goto :eof
+    )
+    if errorlevel 2 goto :FixMenu
+    set "fixPreview=0"
+    goto :FixExecute
+
 :eof
+exit
+::PSFIX-BEGIN
+$ErrorActionPreference = 'SilentlyContinue'
+$root = $env:IW_FIX_ROOT.TrimEnd('\')
+if ($root.Length -eq 2 -and $root[1] -eq ':') { $root = $root + '\' }
+$depth = [int]$env:IW_FIX_DEPTH
+$preview = ($env:IW_FIX_PREVIEW -eq '1')
+
+$sig = '[DllImport("shell32.dll", CharSet=CharSet.Unicode)] public static extern void SHChangeNotify(int e, uint f, string a, string b);'
+Add-Type -Namespace IW -Name Shell -MemberDefinition $sig
+function Notify-Shell($path, $ev) { try { [IW.Shell]::SHChangeNotify($ev, 5, $path, $null) } catch {} }
+
+function Find-Icon($p, $folder) {
+    # 1) same path on another drive letter
+    if ($p -match '^[A-Za-z]:\\(.+)$') {
+        $rest = $matches[1]
+        foreach ($d in [IO.DriveInfo]::GetDrives()) {
+            try {
+                if ($d.DriveType -ne 'CDRom' -and $d.IsReady) {
+                    $c = Join-Path $d.RootDirectory.FullName $rest
+                    if ([IO.File]::Exists($c)) { return $c }
+                }
+            } catch {}
+        }
+    }
+    # 2) same file name somewhere inside the folder itself
+    $name = [IO.Path]::GetFileName($p)
+    if ($name) {
+        $hit = Get-ChildItem -LiteralPath $folder -Filter $name -File -Recurse -Depth 4 -Force -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($hit) { return $hit.FullName }
+    }
+    return $null
+}
+
+# ---- collect folders ----
+$targets = New-Object System.Collections.Generic.List[string]
+$queue = New-Object System.Collections.Generic.Queue[object]
+$queue.Enqueue(@{ p = $root; l = 0 })
+while ($queue.Count -gt 0) {
+    $cur = $queue.Dequeue()
+    $targets.Add($cur.p)
+    if ($depth -ge 0 -and $cur.l -ge $depth) { continue }
+    try {
+        foreach ($c in [IO.Directory]::GetDirectories($cur.p)) {
+            $n = [IO.Path]::GetFileName($c)
+            if ($n -eq '$RECYCLE.BIN' -or $n -eq 'System Volume Information') { continue }
+            if (([int][IO.File]::GetAttributes($c)) -band 1024) { continue }   # skip junctions/symlinks
+            $queue.Enqueue(@{ p = $c; l = ($cur.l + 1) })
+        }
+    } catch {}
+}
+
+$withIcon = 0; $fixed = 0; $okc = 0; $missing = 0
+
+foreach ($f in $targets) {
+    $ini = Join-Path $f 'desktop.ini'
+    if (-not [IO.File]::Exists($ini)) { continue }
+    $lines = $null
+    try { $lines = [IO.File]::ReadAllLines($ini) } catch { continue }
+
+    $res = $null; $file = $null; $idx = '0'
+    foreach ($l in $lines) {
+        if ($l -match '^\s*IconResource\s*=\s*(.*?)\s*$') { $res = $matches[1] }
+        elseif ($l -match '^\s*IconFile\s*=\s*(.*?)\s*$') { $file = $matches[1] }
+        elseif ($l -match '^\s*IconIndex\s*=\s*(-?\d+)') { $idx = $matches[1] }
+    }
+    if (-not $res -and $file) { $res = "$file,$idx" }
+    if (-not $res) { continue }
+    $withIcon++
+
+    $path = $res; $index = '0'
+    if ($res -match '^(.*),\s*(-?\d+)\s*$') { $path = $matches[1]; $index = $matches[2] }
+    $path = $path.Trim('"')
+    $exp = [Environment]::ExpandEnvironmentVariables($path)
+    if (-not [IO.Path]::IsPathRooted($exp)) { $exp = Join-Path $f $exp }
+
+    $rel = $f.Substring([Math]::Min($root.Length, $f.Length)).TrimStart('\')
+    if (-not $rel) { $rel = '(this folder) ' + [IO.Path]::GetFileName($f) }
+
+    $notes = New-Object System.Collections.Generic.List[string]
+    $newPath = $null
+    $isMissing = $false
+
+    # --- icon file present? ---
+    if (-not [IO.File]::Exists($exp)) {
+        $newPath = Find-Icon $exp $f
+        if ($newPath) { $notes.Add("icon path remapped: $exp  =>  $newPath") }
+        else { $isMissing = $true }
+    }
+
+    # --- rewrite desktop.ini if the path changed ---
+    if ($newPath -and -not $preview) {
+        $new = New-Object System.Collections.Generic.List[string]
+        $done = $false
+        foreach ($l in $lines) {
+            if ($l -match '^\s*IconResource\s*=') { $new.Add("IconResource=$newPath,$index"); $done = $true }
+            else { $new.Add($l) }
+        }
+        if (-not $done) {
+            $out = New-Object System.Collections.Generic.List[string]
+            $ins = $false
+            foreach ($l in $new) {
+                $out.Add($l)
+                if (-not $ins -and $l -match '^\s*\[\.ShellClassInfo\]') { $out.Add("IconResource=$newPath,$index"); $ins = $true }
+            }
+            if (-not $ins) { $out.Insert(0, '[.ShellClassInfo]'); $out.Insert(1, "IconResource=$newPath,$index") }
+            $new = $out
+        }
+        try {
+            [IO.File]::SetAttributes($ini, [IO.FileAttributes]128)
+            [IO.File]::WriteAllLines($ini, $new.ToArray(), [Text.Encoding]::Unicode)
+        } catch { $notes.Add('could not rewrite desktop.ini (access denied?)') }
+    }
+
+    # --- desktop.ini must be Hidden + System ---
+    $iniA = [int][IO.File]::GetAttributes($ini)
+    if (($iniA -band 6) -ne 6) {
+        if (-not $preview) { try { [IO.File]::SetAttributes($ini, [IO.FileAttributes]($iniA -bor 6)) } catch {} }
+        $notes.Add('desktop.ini attributes (hidden+system) restored')
+    } elseif ($newPath -and -not $preview) {
+        try { [IO.File]::SetAttributes($ini, [IO.FileAttributes]($iniA -bor 6)) } catch {}
+    }
+
+    # --- the folder itself must be ReadOnly or System for Explorer to read desktop.ini ---
+    $dirA = [int][IO.File]::GetAttributes($f)
+    if (($dirA -band 5) -eq 0) {
+        if (-not $preview) { try { [IO.File]::SetAttributes($f, [IO.FileAttributes]($dirA -bor 1)) } catch {} }
+        $notes.Add('folder attribute set (this was the usual cause)')
+    }
+
+    if (-not $preview) {
+        Notify-Shell $f 0x2000
+        $par = [IO.Path]::GetDirectoryName($f)
+        if ($par) { Notify-Shell $par 0x1000 }
+    }
+
+    $verb = if ($preview) { 'WOULD FIX' } else { 'FIXED' }
+    if ($isMissing) {
+        $missing++
+        Write-Host ("[MISSING ICON] {0}" -f $rel) -ForegroundColor Red
+        Write-Host ("               icon file not found: {0}" -f $exp) -ForegroundColor DarkRed
+        foreach ($n in $notes) { Write-Host ("               {0}" -f $n) -ForegroundColor Yellow }
+        if ($notes.Count -gt 0) { $fixed++ }
+    } elseif ($notes.Count -gt 0) {
+        $fixed++
+        Write-Host ("[{0}] {1}" -f $verb, $rel) -ForegroundColor Green
+        foreach ($n in $notes) { Write-Host ("        {0}" -f $n) -ForegroundColor Yellow }
+    } else {
+        $okc++
+        Write-Host ("[OK] {0}" -f $rel) -ForegroundColor DarkGray
+    }
+}
+
+if (-not $preview) {
+    try { [IW.Shell]::SHChangeNotify(0x08000000, 0, $null, $null) } catch {}
+    if ($fixed -gt 0) { try { Start-Process -FilePath "$env:windir\System32\ie4uinit.exe" -ArgumentList '-show' -WindowStyle Hidden } catch {} }
+}
+
+Write-Host ''
+Write-Host '========================================================================'
+Write-Host ("Folders scanned          : {0}" -f $targets.Count)
+Write-Host ("Folders with custom icon : {0}" -f $withIcon)
+if ($preview) { Write-Host ("Would be fixed           : {0}" -f $fixed) } else { Write-Host ("Fixed                    : {0}" -f $fixed) }
+Write-Host ("Already fine             : {0}" -f $okc)
+if ($missing -gt 0) { Write-Host ("Icon file missing        : {0}  (the icon file itself must exist to be shown)" -f $missing) -ForegroundColor Red }
+if (-not $preview -and $fixed -gt 0) { Write-Host 'Explorer was refreshed. If an icon still looks stale, press F5 or reopen the window.' }
+Write-Host '========================================================================'
